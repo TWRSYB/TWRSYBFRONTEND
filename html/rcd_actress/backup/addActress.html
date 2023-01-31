@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>添加女优</title>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="../../element-ui-2.13.0/lib/theme-chalk/index.css" />
+	<link rel="stylesheet" href="../../css/main.css" />
+	<script src="../../js/vue.js"></script>
+	<script src="../../js/axios.js"></script>
+	<script type="text/javascript" src="../../element-ui-2.13.0/lib/index.js"></script>
+	<link rel="stylesheet" href="../../css/index.css">
+
+</head>
+
+<body class="addActress">
+	<div id="app">
+		<div class="inputArea">
+			<div class="infoTypeOne">
+				<div class="infoType">女优编号:</div>
+				<div class="infoCheck">
+					<el-form ref="form" :model="form.base" label-width="80px">
+						<el-form-item class="rowOne" label="">
+							<el-input class="input" v-model="form.keyActressNo" placeholder="女优编号" disabled>
+							</el-input>
+							<el-input class="input" v-model="form.nameStage" placeholder="艺名">
+							</el-input>
+							<el-button type="primary" @click="gnrtActressNo">生成女优编号</el-button>
+							<el-button type="primary" @click="gnrtActressNoForce" v-if="sameStageNameAlert">确定生成女优编号
+							</el-button>
+						</el-form-item>
+						<span v-if="sameStageNameAlert">已经存在相同艺名的女优, 是否继续生成?</span>
+					</el-form>
+				</div>
+			</div>
+
+			<div class="infoTypeOne">
+				<div class="infoType">女优名</div>
+				<div class="infoCheck">
+					<el-form ref="form" :model="form" label-width="80px">
+						<el-form-item class="rowOne" label="">
+							<el-input class="input" v-model="form.nameJpTrue" placeholder="日本真名" style="width: 400px;">
+							</el-input>
+							<el-input class="input" v-model="form.nameCn" placeholder="中文名" style="width: 400px;">
+							</el-input>
+						</el-form-item>
+						<el-form-item class="rowOne" label="">
+							<el-input class="input" v-model="form.nameEn" placeholder="英文名" style="width: 400px;">
+							</el-input>
+							<el-input class="input" v-model="form.nameOther" placeholder="别名" style="width: 400px;">
+							</el-input>
+						</el-form-item>
+					</el-form>
+				</div>
+			</div>
+
+			"xmAppearanceIndex": "颜值",
+			"xmAppearanceType": "相貌类型",
+			"xmSkinColor": "肤色",
+			"xmFaceType": "脸型",
+			"xmLike": "印象",
+			<div class="infoTypeOne">
+				<div class="infoType">相貌</div>
+				<div class="infoCheck">
+					<el-form ref="form" :model="form" label-width="80px">
+						<el-form-item class="rowOne" label="颜值">
+							<el-radio-group v-model="form.xmAppearanceIndex">
+								<el-radio-button v-for="item in dictionary.xmAppearanceIndex" :label="item">
+								</el-radio-button>
+							</el-radio-group>
+						</el-form-item>
+						<el-form-item class="rowOne" label="类型">
+							<el-input class="input" v-model="form.xmAppearanceType" placeholder="相貌类型"
+								style="width: 400px;">
+							</el-input>
+						</el-form-item>
+						<el-form-item class="rowOne" label="类型">
+							<el-input class="input" v-model="form.xmSkinColor" placeholder="肤色"
+								style="width: 400px;">
+							</el-input>
+						</el-form-item>
+					</el-form>
+				</div>
+			</div>
+
+			<div class="infoTypeOne">
+				<div class="infoType">出生</div>
+				<div class="infoCheck">
+					<el-form ref="form" :model="form" label-width="80px">
+						<el-form-item class="rowOne" label="">
+							<el-date-picker type="date" placeholder="出生年月日" format="yyyyMMdd" value-format="yyyyMMdd"
+								v-model="form.birthYmd"></el-date-picker>
+							<el-select class="select" v-model="form.birthCountry" placeholder="国家">
+								<el-option v-for="item in dictionary.country" :label="item" :value="item"></el-option>
+							</el-select>
+							<el-input class="input" v-model="form.yzAppearanceType" placeholder="出生地">
+							</el-input>
+						</el-form-item>
+					</el-form>
+				</div>
+			</div>
+
+			scFat: "",
+			scLegsThickness: "",
+			scHipDistance: "",
+			scLegsType: "",
+			scTitSize: "",
+			scHipType: "",
+			scHeight: "",
+
+			scBust: "",
+			scCup: "",
+			scWeight: "",
+			<div class="infoTypeOne">
+				<div class="infoType">身材</div>
+				<div class="infoCheck">
+					<el-form ref="form" :model="form" label-width="80px">
+						<div class="rowOne">
+							<el-form-item label="胖瘦">
+								<el-select class="select" v-model="form.scFat" placeholder="胖瘦">
+									<el-option v-for="item in dictionary.scFat" :label="item" :value="item"></el-option>
+								</el-select>
+							</el-form-item>
+							<el-form-item label="腿粗细">
+								<el-select class="select" v-model="form.scLegsThickness" placeholder="腿粗细">
+									<el-option v-for="item in dictionary.scLegsThickness" :label="item" :value="item"></el-option>
+								</el-select>
+							</el-form-item>
+							<el-form-item label="胯距">
+								<el-select class="select" v-model="form.scHipDistance" placeholder="胯距">
+									<el-option v-for="item in dictionary.scHipDistance" :label="item" :value="item"></el-option>
+								</el-select>
+							</el-form-item>
+							<el-form-item label="腿型">
+								<el-select class="select" v-model="form.scLegsType" placeholder="腿型">
+									<el-option v-for="item in dictionary.scLegsType" :label="item" :value="item"></el-option>
+								</el-select>
+							</el-form-item>
+							<el-form-item label="奶子大小">
+								<el-select class="select" v-model="form.scTitSize" placeholder="奶子大小">
+									<el-option v-for="item in dictionary.scTitSize" :label="item" :value="item"></el-option>
+								</el-select>
+							</el-form-item>
+							<el-form-item label="臀型">
+								<el-select class="select" v-model="form.scHipType" placeholder="臀型">
+									<el-option v-for="item in dictionary.scHipType" :label="item" :value="item"></el-option>
+								</el-select>
+							</el-form-item>
+							<el-form-item label="身高">
+								<el-select class="select" v-model="form.scHeight" placeholder="身高">
+									<el-option v-for="item in dictionary.scHeight" :label="item" :value="item"></el-option>
+								</el-select>
+							</el-form-item>
+						</div>
+					</el-form>
+				</div>
+			</div>
+
+
+		</div>
+		{{form}}
+
+	</div>
+</body>
+<script>
+	axios.defaults.baseURL = 'http://localhost:9090'
+	//axios.defaults.withCredentials = true
+	new Vue({
+		el: "#app",
+		data: {
+			/*分页相关*/
+			sameStageNameAlert: false,
+
+			allItem: {
+				"keyActressNo": "女优编号",
+				"nameStage": "艺名",
+
+				"nameJpTrue": "日文真名",
+				"nameCn": "中文名",
+				"nameEn": "英文名",
+				"nameOther": "别名",
+
+				"xmAppearanceIndex": "颜值",
+				"xmAppearanceType": "相貌类型",
+				"xmSkinColor": "肤色",
+				"xmFaceType": "脸型",
+				"xmLike": "印象",
+
+				"qzCharacter": "性格",
+
+				"txTallOrShort": "高低",
+				"txFatOrThin": "胖瘦",
+				"txTitSize": "奶子大小",
+				"txHipType": "臀型",
+				"txHipDistance": "胯距",
+				"txLegsType": "腿型",
+				"txLegsThickness": "腿粗细",
+
+				"birthYmd": "出生年月日",
+				"birthPlace": "出生地",
+				"birthCountry": "国家",
+
+				"hxColor": "颜色",
+				"hxType": "户型",
+				"hxWhiteTiger": "白虎",
+
+				"cdDebutYmd": "出道年月日",
+				"cdDebutAge": "出道年龄",
+				"cdRetireYmd": "隐退年月日",
+				"cdRetireAge": "隐退年龄",
+				"cdPeriods": "出道期间",
+
+
+				"scHeight": "身高",
+				"scWeight": "体重",
+				"scCup": "杯罩",
+				"scBust": "三围",
+
+				"rcRecordTime": "收录时间",
+				"rcRecorder": "收录人",
+				"rcLastModifiedTime": "最后修改时间",
+				"rcLastModifier": "最后修改人",
+				"rcDataStatus": "数据状态",
+			},
+			// itemsOption: [
+			// 	{
+			// 		itemtype: "编号",
+			// 		items: {"keyActressNo": "编号"},
+			// 		itemsChecked: 
+			// 	}
+			// ],
+			// 女优基本信息
+			baseItem: { "keyActressNo": "编号", "nameStage": "艺名;" },
+			baseItemChecked: ["keyActressNo", "nameStage"],
+			// 名字信息
+			nameItem: { "nameJpTrue": "日文真名;", "nameCn": "中文名;", "nameEn": "英文名;", "nameOther": "别名;", },
+			nameItemChecked: ["nameCn"],
+			// 相貌
+			xmItem: { "xmAppearanceIndex": "颜值", "xmAppearanceType": "相貌类型", "xmSkinColor": "肤色", "xmFaceType": "脸型", "xmLike": "印象" },
+			xmItemChecked: ["xmAppearanceIndex", "xmAppearanceType"],
+			// 出生情况
+			birthItem: { "birthYmd": "出生年月日;", "birthCountry": "国家", "birthPlace": "出生地;" },
+			birthItemChecked: ["birthYmd", "birthCountry"],
+			// 出道情况
+			cdItem: { "cdDebutYmd": "出道年月日", "cdDebutAge": "出道年龄", "cdRetireYmd": "隐退年月日", "cdRetireAge": "隐退年龄", "cdPeriods": "出道期间" },
+			cdItemChecked: ["cdDebutAge"],
+			// 气质
+			qzItem: { "qzCharacter": "性格" },
+			qzItemChecked: ["qzCharacter"],
+			// 体型
+			txItem: { "txTallOrShort": "高低", "txFatOrThin": "胖瘦", "txTitSize": "奶子大小", "txHipType": "臀型", "txHipDistance": "胯距", "txLegsType": "腿型", "txLegsThickness": "腿粗细" },
+			txItemChecked: ["txTallOrShort", "txFatOrThin", "txHipDistance"],
+			// 户型
+			hxItem: { "hxColor": "颜色", "hxType": "户型", "hxWhiteTiger": "白虎" },
+			hxItemChecked: ["txTallOrShort", "txFatOrThin", "txHipDistance"],
+			// 身材
+			scItem: { "scHeight": "身高", "scBust": "三围;", "scCup": "杯罩", "scWeight": "体重" },
+			scItemChecked: ["scFatLv", "scHipDistance"],
+
+			// 收录情况
+			recordingItem: { "rcRecordTime": "收录时间;", "rcRecorder": "收录人;", "rcLastModifiedTime": "最后修改时间;", "rcLastModifier": "最后修改人;", "rcDataStatus": "数据状态" },
+			recordingItemChecked: ["rcDataStatus"],
+
+
+
+			// 番号基本信息
+			dictionary: {
+				yzAppearanceIndex: [1, 2, 3, 4, 5, 6, 7, 8, 9, 'A', 'B', 'C', 'D', 'E', 'S'],
+				country: ["日本", "中国", "欧美", "韩国or东南亚", "未收录"],
+				scFat: ["未收录", "极瘦", "较瘦", "正常", "丰满", "肥"],
+				scLegsThickness: ["未收录", "极细", "较细", "正常", "较粗", "极粗"],
+				scHipDistance: ["未收录","-1", "-0.5", "0", "0.5", "1"],
+				scLegsType: ["未收录", "X型", "微X型", "筷子型", "微O型", "O型"],
+				scTitSize: ["未收录", "极小", "小", "正常", "大", "巨大"],
+				scHipType: ["未收录", "极囵", "较囵", "正常", "丰满", "肥"],
+
+			},
+
+
+			form: {
+
+				keyActressNo: "",
+				nameStage: "",
+
+				nameJpTrue: "",
+				nameCn: "",
+				nameEn: "",
+				nameOther: "",
+
+				xmAppearanceIndex: "",
+				xmAppearanceType: "",
+				xmSkinColor: "",
+				xmFaceType: "",
+				xmLike: "",
+
+				birthYmd: "",
+				birthCountry: "",
+				birthPlace: "",
+
+				scFat: "",
+				scLegsThickness: "",
+				scHipDistance: "",
+				scLegsType: "",
+				scTitSize: "",
+				scHipType: "",
+				scHeight: "",
+
+				scBust: "",
+				scCup: "",
+				scWeight: "",
+
+
+			},
+
+		},
+
+		computed: {
+			subSeries: function () {
+				for (var item of this.fanhaoBaseInfo.series) {
+					if (item.seriesName == this.form.fanhaoInfo.series) {
+						return item.subSeries;
+					}
+				}
+			},
+
+		},
+
+		methods: {
+
+			//确认修改
+			add() {
+
+
+			},
+
+
+			// subSeries: function () {
+			// 	console.log("subSeries")
+			// 	console.log(this.fanhaoBaseInfo)
+
+			// 	for(var item of this.fanhaoBaseInfo.series) {
+
+			// 		console.log(item)
+			// 		console.log(item.seriesName)
+			// 		console.log(this.form.series)
+
+			// 		if (item.seriesName == this.form.fanhaoInfo.series) {
+
+			// 			console.log("匹配道路")
+			// 			this.fanhaoBaseInfo.subSeries = item.subSeries;
+			// 		}
+			// 	}
+			// },
+		},
+
+		created() {
+		},
+
+		mounted() {
+		},
+
+
+
+
+
+	})
+</script>
+
+</html>

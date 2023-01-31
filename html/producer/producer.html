@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>制片商</title>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="../../element-ui-2.13.0/lib/theme-chalk/index.css" />
+	<script src="../../js/vue.js"></script>
+    <script src="../../js/axios.js"></script>
+	<script type="text/javascript" src="../../element-ui-2.13.0/lib/index.js"></script>
+	<link rel="stylesheet" href="../../css/index.css">
+
+</head>
+
+<body>
+	<div id="app">
+
+			<!-- <template>
+				<el-button size="mini" @click="add()">添加</el-button>
+				<el-table :data="tableData" @selection-change="handleSelectionChange" size="medium"
+					highlight-current-row="true" style="width: 100%">
+					<el-table-column width="55px" label="序号" type="index"></el-table-column>
+					<el-table-column type="selection" width="55" prop="seriesId" ></el-table-column>
+					<el-table-column label="国家" prop="country"></el-table-column>
+					<el-table-column label="制片商" prop="producer"></el-table-column>
+					<el-table-column label="系列" prop="series"></el-table-column>
+					<el-table-column label="投资人" prop="investor"></el-table-column>
+					<el-table-column label="番号标识" prop="fanhaoSymbol"></el-table-column>
+					<el-table-column label="系列简述" prop="seriesResume"></el-table-column>
+					<el-table-column label="系列详述" prop="seriesDetails"></el-table-column>
+
+					<el-table-column label="操作">
+						<template slot-scope="scope">
+							<el-button size="mini" v-if="scope.row.seriesId==='new'" @click="comfirmAdd(scope.$index, scope.row)">添加</el-button>
+							<el-button size="mini" @click="handleEdit(scope.$index, scope.row)">修改</el-button>
+							<el-button size="mini" type="success" @click="handlelook(scope.$index, scope.row)">删除</el-button>
+						</template>
+					</el-table-column>
+				</el-table>
+			</template> -->
+
+			<button @click="add()">添加</button>
+
+			<div class="producer">
+				<div class="title flex-center">
+					<div class="index flex-center">序号</div>
+					<div class="status flex-center">状态</div>
+					<div class="id flex-center">系列ID</div>
+					<div class="item flex-center">地区</div>
+					<div class="item flex-center">厂商</div>
+					<div class="item flex-center">系列</div>
+					<div class="item flex-center">投资人</div>
+					<div class="item flex-center">系列符号</div>
+					<div class="item flex-center">系列简述</div>
+					<div class="item flex-center">系列详述</div>
+					<div class="item flex-center">操作</div>
+				</div>
+	
+				<div class="series flex-center" v-for="(item, index) in producer" :key="index">
+					<div class=" index flex-center">{{index+1}}</div>
+					<div class="status flex-center">
+						<span v-if="item.status == 1">正常</span>
+						<span v-if="item.status == 2">编辑中</span>
+						<span v-if="item.status == 0">添加中</span>
+					</div>
+					<div class=" id flex-center">{{item.seriesId}}</div>
+					<div class="item flex-center">
+						<span v-if="item.status == 1">{{item.area}}</span>
+						<input v-if="item.status != 1" v-model="item.area" type="text" placeholder="请输入地区">
+					</div>
+	
+					<div class="item flex-center">{{item.producer}}</div>
+					<div class="item flex-center">{{item.series}}</div>
+					<div class="item flex-center">{{item.investor}}</div>
+					<div class="item flex-center">{{item.fanhaoSymbol}}</div>
+					<div class="item flex-center text-one-line">{{item.seriesResume}}</div>
+					<div class="item flex-center text-one-line">{{item.seriesDetails}}</div>
+					<div class="item flex-center">
+						<button v-show="item.status == 1" @click="enableEdit(item, index)">修改</button>
+						<button v-show="item.status == 2" @click="item.status = 0">提交修改</button>
+						<button v-show="item.status == 1">删除</button>   
+						<button v-show="item.status == 0">提交添加</button>
+					</div>
+	
+	
+				</div>
+			</div>
+
+
+			<button @click="add()">添加</button>
+
+			<div class="producer">
+				<table class="tb" >
+					<tr>
+						<th class="tb_index">序号</th>
+						<th class="tb_status">状态</th>
+						<th class="tb_id">系列ID</th>
+						<th class="tb_item">地区</th>
+						<th class="tb_item">厂商</th>
+						<th class="tb_item">系列</th>
+						<th class="tb_item">投资人</th>
+						<th class="tb_item">番号样式</th>
+						<th class="tb_item">番号命名规则</th>
+						<th class="tb_item">系列简述</th>
+						<th class="tb_item">系列详述</th>
+						<th class="tb_item">操作</th>
+					</tr>
+
+					<tr class="tr" v-for="(series,index) in seriesList"  :key="seriesIndex">
+						<td class="tb_index">{{ seriesIndex + 1 }}</td>
+						<td class="tb_status">
+							<span v-if="series.status == 1">正常</span>
+							<span v-if="series.status == 2">编辑中</span>
+							<span v-if="series.status == 0">添加中</span>
+						</td>
+						<td class="tb_id">{{series.seriesId}}</td>
+						<td class="tb_item">
+							<span v-if="series.status == 1">						
+								<span v-for="(area, index) in areaList" v-if="series.areaId == area.areaId">{{area.areaName}}</span>
+							</span>
+							<input class="tb_input" v-if="series.status != 1" v-model="series.area" type="text" placeholder="请输入地区">
+						</td>
+						<td class="tb_item">{{series.producer}}</td>
+						<td class="tb_item">{{series.series}}</td>
+						<td class="tb_item">{{series.investor}}</td>
+						<td class="tb_item">{{series.fanhaoSymbol}}</td>
+						<td class="tb_item">{{series.fanhaoRuler}}</td>
+						<td class="tb_item">{{series.seriesResume}}</td>
+						<td class="tb_item">{{series.seriesDetails}}</td>
+						<td class="tb_item">
+							<button v-show="series.status == 1" @click="enableEdit(series, index)">修改</button>
+							<button v-show="series.status == 2" @click="series.status = 0">提交修改</button>
+							<button v-show="series.status == 1">删除</button>   
+							<button v-show="series.status == 0">提交添加</button>
+						</td>
+						<!-- <td>{{ item.name }}</td> -->
+						<!-- <td v-text="item.age"></td>
+						<td v-text="item.sex"></td> -->
+					</tr>
+
+				</table>
+	
+
+			</div>
+
+
+	</div>
+</body>
+<script>
+	axios.defaults.withCredentials = true
+	new Vue({
+		el: "#app",
+		data: {
+			/*分页相关*/
+			seriesList: [
+				{"status":1, "seriesId":1,"areaId":"1","producer":"东京热","series":"N系列","investor":"未录入","fanhaoSymbol":"n","fanhaoRuler":"n开头后面四位数字","seriesResume":"东京热, 就是东京很热","seriesDetails":"东京热, 经典配乐, 女优好看"}
+			],
+			areaList: [
+				{"areaId":"1", "areaName":"日本"},
+				{"areaId":"2", "areaName":"中国"},
+				{"areaId":"3", "areaName":"欧美"},
+				{"areaId":"4", "areaName":"动漫"},
+				{"areaId":"5", "areaName":"东南亚,韩国"},
+				{"areaId":"0", "areaName":"未录入"},
+				{"areaId":"-1", "areaName":"无法确定"},
+				{"areaId":"-2", "areaName":"无地区"},
+			]
+
+		},
+
+		methods: {
+
+			//确认修改
+			add() {		
+				this.seriesList.push(
+					{"status":"0", "seriesId":"0","areaId":"0","producer":"未录入","series":"未录入","investor":"未录入","fanhaoSymbol":" ","seriesResume":" ","seriesDetails":" "}
+				);
+
+			}
+		},
+		
+
+
+	})
+</script>
+
+</html>

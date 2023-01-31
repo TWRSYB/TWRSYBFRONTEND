@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>女优</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../../element-ui-2.13.0/lib/theme-chalk/index.css" />
+    <link rel="stylesheet" href="../../css/main.css" />
+    <script src="../../js/vue.js"></script>
+    <script src="../../js/axios.js"></script>
+    <script type="text/javascript" src="../../element-ui-2.13.0/lib/index.js"></script>
+    <link rel="stylesheet" href="../../css/index.css">
+
+</head>
+
+<body class="fanhao">
+    <div id="app">
+        <div class="itemArea">
+            <div style="font-size: 20px; margin-bottom: 8px;">查看选项</div>
+
+            <div class="itemTypeOne">
+                <div class="itemTypeName">通用:</div>
+                <el-checkbox-group v-model="comItemSelected" @change="">
+                    <el-checkbox class="item" v-for="(value, key) in comItems" :label="key" :key="key">{{value}}
+                    </el-checkbox>
+                </el-checkbox-group>
+            </div>
+            <div class="itemTypeOne" v-for="fieldPackage in tableDesign.fieldPackages">
+                <div class="itemTypeName">{{fieldPackage.typeName}}:</div>
+                <el-checkbox-group v-model="fieldPackage.selectedFields" @change="">
+                    <el-checkbox class="item" v-for="field in fieldPackage.fields" :label="field.columnName"
+                        :key="field.columnName">{{field.columnComment}}
+                    </el-checkbox>
+                </el-checkbox-group>
+            </div>
+
+        </div>
+
+        <div class="tableArea">
+
+
+
+
+            <template>
+                <el-button size="mini" @click="add()">添加</el-button>
+                <el-table :data="actresList" @selection-change="handleSelectionChange" size="medium"
+                    highlight-current-row="true" style="width: 100%">
+                    <el-table-column width="55px" label="序号" type="index" v-if="comItemSelected.includes('index')">
+                    </el-table-column>
+                    <el-table-column type="expand" label="展开" v-if="comItemSelected.includes('expand')">
+                        <template slot-scope="props">
+                            <el-form label-position="left" inline class="demo-table-expand">
+                                <template v-for="fieldPackage in tableDesign.fieldPackages">
+                                    <el-form-item v-for="field in fieldPackage.fields" :label="field.columnComment">
+                                        <span>{{ expandKeyGetValue(props.row, field.columnName) }}</span>
+                                    </el-form-item>
+                                </template>
+                            </el-form>
+                        </template>
+                    </el-table-column>
+                    <el-table-column type="selection" width="55" prop="keyActressNo"
+                        v-if="comItemSelected.includes('selection')"></el-table-column>
+                    <template v-for="fieldPackage in tableDesign.fieldPackages" :key="">
+
+                        <el-table-column v-for="field in fieldPackage.fields" :label="field.columnComment"
+                            :key="field.columnName" :prop="field.columnName"
+                            v-if="fieldPackage.selectedFields.includes(field.columnName)">
+                            <!-- <template slot-scope="props">
+							<span>{{ match(props.row, key) }}</span>
+						</template> -->
+                        </el-table-column>
+                    </template>
+
+                    <el-table-column label="操作" v-if="comItemSelected.includes('option')">
+                        <template slot-scope="scope">
+                            <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">修改</el-button>
+                            <el-button size="mini" type="success" @click="handlelook(scope.$index, scope.row)">删除
+                            </el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </template>
+
+        </div>
+    </div>
+</body>
+<script>
+    axios.defaults.baseURL = 'http://localhost:9090'
+    //axios.defaults.withCredentials = true
+    new Vue({
+        el: "#app",
+        data: {
+            tableDesign: {},
+            actresList: [],
+            comItems: { "index": "序号", "option": "操作", "expand": "展开", "selection": "选择" },
+            comItemSelected: ["expand"],
+            comItemSelectAll: true,
+
+
+        },
+
+
+        methods: {
+
+
+
+            getTableDesign() {
+                axios.get('/actress/getTableDesign')
+                    .then(res => {
+                        console.log(1, res)
+                        console.log(2, res.data)
+                        console.log(3, res.data.code)
+                        console.log(4, res.data.obj)
+                        this.tableDesign = res.data.obj;
+                    })
+                    .catch(err => {
+                        console.error(err);
+                    })
+            },
+
+            queryActressList() {
+                axios.get('/actress/queryActressList')
+                    .then(res => {
+                        console.log(res)
+                        console.log(res.data)
+                        this.actresList = res.data;
+                    })
+                    .catch(err => {
+                        console.error(err);
+                    })
+            },
+
+            expandKeyGetValue(row, key) {
+                console.log(row, key);
+                for (let i in row) {
+                    if (i == key) {
+                        return row[i];
+                    }
+                }
+            },
+
+            match(row, key) {
+                console.log(row, key);
+                for (let i in row) {
+                    if (i == key) {
+                        return row[i];
+                    }
+                }
+            },
+
+            handleSelectionChange() {
+
+            }
+
+        },
+
+        created() {
+        },
+
+        mounted() {
+            this.getTableDesign();
+            this.queryActressList();
+        },
+
+
+
+
+
+    })
+</script>
+
+</html>

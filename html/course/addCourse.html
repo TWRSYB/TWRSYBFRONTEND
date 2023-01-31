@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title></title>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="../../element-ui-2.13.0/lib/theme-chalk/index.css" />
+	<script type="text/javascript" src="../../vue/vue-v2.6.10.js"></script>
+	<script type="text/javascript" src="../../element-ui-2.13.0/lib/index.js"></script>
+	<script type="text/javascript" src="../../vue/axios-0.18.0.js"></script>
+</head>
+
+<body>
+	<div id="app">
+		<!--上传课程-->
+		<el-tag type="info" effect="dark" v-if="inputVisible" closable="true" :disable-transitions="disable"
+			@close="handleClose">添加课程</el-tag>
+		<div v-if="inputVisible">
+			<!--表单-->
+			<el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
+				<el-form-item label="课程名称" prop="courseName">
+					<el-input v-model="ruleForm.courseName" style="width: 210px;"></el-input>
+				</el-form-item>
+				<el-form-item label="课程简介" prop="descs">
+					<el-input v-model="ruleForm.descs" style="width: 210px;"></el-input>
+				</el-form-item>
+				<el-form-item label="课程类型" prop="courseType">
+					<el-select v-model="ruleForm.courseType" placeholder="请选择课程类型">
+						<el-option label="JavaEE" value="1"></el-option>
+						<el-option label="数据库" value="2"></el-option>
+						<el-option label="前端技术" value="3"></el-option>
+					</el-select>
+				</el-form-item>
+
+				<!-- 图片 -->
+				<el-form-item label="上传图片" prop="courseImage">
+					<el-upload style="margin-left: 25px;" :on-remove="handleRemoveImage" :on-exceed="handleExceed"
+						:http-request="myUploadImage" class="upload-demo" ref="image"
+						action="http://localhost:8080/edu01/courseServlet?mark=uploadFile" :limit="1"
+						:auto-upload="false">
+
+						<el-button slot="trigger" size="small" type="primary">选取图片</el-button>
+						<el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload(1)">
+							上传到服务器
+						</el-button>
+					</el-upload>
+					<!-- 图片回显 -->
+					<img :src=`http://localhost:8080/edu01Pic/${ruleForm.courseImage}`
+						style="width: 100px;height: 100px;margin-left: 25px;" alt="" v-if="showImage">
+				</el-form-item>
+
+
+				<!-- 视频 -->
+				<el-form-item label="上传视频" prop="courseVideo">
+					<el-upload style="margin-left: 25px;" :on-remove="handleRemoveVideo" :on-exceed="handleExceed"
+						:http-request="myUploadVideo" class="upload-demo" ref="video"
+						action="http://localhost:8080/edu01/courseServlet?mark=uploadFile" :limit="1"
+						:auto-upload="false">
+						<el-button slot="trigger" size="small" type="primary">选取视频</el-button>
+						<el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload(2)">
+							上传到服务器
+						</el-button>
+					</el-upload>
+					<!-- 视频回显 -->
+					<video controls autoplay muted="muted"
+						style="width: 100px;height: 100px;margin-left: 25px;margin-top: 5px;"
+						:src=`http://localhost:8080/edu01Pic/${ruleForm.courseVideo}` v-if="showVideo"></video>
+				</el-form-item>
+
+				<el-form-item label="课程价格" prop="coursePrice">
+					<el-input v-model="ruleForm.coursePrice" style="width: 210px;"></el-input>
+				</el-form-item>
+				<el-form-item label="状态" prop="status">
+					<el-radio-group v-model="ruleForm.status">
+						<el-radio label="0">未上架</el-radio>
+						<el-radio label="1">上架</el-radio>
+						<el-radio label="2">下架</el-radio>
+					</el-radio-group>
+				</el-form-item>
+			</el-form>
+			<div slot="footer" class="dialog-footer" style="margin-left: 20px;">
+				<el-button @click="handleClose">取 消</el-button>
+				<el-button type="primary" @click="submitForm('ruleForm')">确 定</el-button>
+			</div>
+		</div>
+		<!--结尾-->
+	</div>
+</body>
+<script>
+	axios.defaults.withCredentials = true
+	new Vue({
+		el: "#app",
+		data: {
+			/*校验的字段*/
+			ruleForm: {
+				courseName: '',
+				descs: '',
+				courseType: '',
+				coursePrice: '',
+				status: '',
+				/*文件上传*/
+				courseImage: null,
+				courseVideo: null,
+			},
+			/*规则*/
+			rules: {
+				courseName: [{
+					required: true,
+					message: '请输入课程名称',
+					trigger: 'blur'
+				},],
+				descs: [{
+					required: true,
+					message: '请选择课程简介',
+					trigger: 'blur'
+				}],
+				courseType: [{
+					required: true,
+					message: '请选择课程类型',
+					trigger: 'change'
+				}],
+				coursePrice: [{
+					required: true,
+					message: '请输入课程价格',
+					trigger: 'blur'
+				}],
+				status: [{
+					required: true,
+					message: '请至少选择一个状态',
+					trigger: 'change'
+
+				}]
+			},
+
+			/*选项卡*/
+			inputVisible: true,
+			disable: false,
+
+			/*回显*/
+			showImage: false,
+			showVideo: false,
+		},
+		methods: {
+
+			// 选项卡的关闭
+			handleClose() {
+				location.href = "index.html"
+			},
+
+			//	限制上传数量为1
+			handleExceed(files, fileList) {
+				this.$message.warning({
+					message: `最多选择 1 个文件`
+				})
+			},
+
+			// 上传按钮手动上传
+			submitUpload(value) {
+				if (value == 1) {
+					this.$refs.image.submit();
+				} else if (value == 2) {
+					this.$refs.video.submit();
+				} else {
+					console.log('submitUpload没有value')
+				}
+			},
+			// 上传图片执行的函数
+			myUploadImage(content) {
+
+				let file = content.file;
+				let param = new FormData();
+				param.append("file", file);
+				axios({
+					method: 'post',
+					url: content.action,
+					data: param,
+					responseType: 'json'
+				}).then(resp => {
+					this.$message.success(resp.data.message);
+					this.ruleForm.courseImage = resp.data.object;
+					this.showImage = true;
+				}).catch(() => {
+					this.$message.error('遇到异常');
+				})
+
+			},
+			// 上传视频执行的函数
+			myUploadVideo(content) {
+				console.log(content);
+
+				let file = content.file;
+				let param = new FormData();
+				param.append("file", file);
+				axios({
+					method: 'post',
+					url: content.action,
+					data: param,
+					responseType: 'json'
+				}).then(resp => {
+					this.$message.success(resp.data.message);
+					this.ruleForm.courseVideo = resp.data.object;
+					this.showVideo = true;
+				}).catch(() => {
+					this.$message.error('遇到异常')
+				})
+
+			},
+
+			//	删除图片执行的函数
+			handleRemoveImage(file, fileList) {
+				if (this.ruleForm.courseImage.endsWith(file.name)) {
+					axios.post(`http://localhost:8080/edu01/courseServlet?mark=removeFile`,
+						`fileName=${this.ruleForm.courseImage}`)
+						.then(resp => {
+							if (resp.data.code == 200) {
+								this.ruleForm.courseImage = null;
+								this.$message.success(resp.data.message);
+								this.showImage = false;
+							} else (() => {
+								this.$message.warning(resp.data.message);
+							})
+						}).catch(() => {
+							this.$message.error('遇到异常')
+						})
+				}
+			},
+
+			//	删除视频执行的函数
+			handleRemoveVideo(file, fileList) {
+				if (this.ruleForm.courseVideo.endsWith(file.name)) {
+					axios.post(`http://localhost:8080/edu01/courseServlet?mark=removeFile`,
+						`fileName=${this.ruleForm.courseVideo}`)
+						.then(resp => {
+							if (resp.data.code == 200) {
+								this.ruleForm.courseVideo = null;
+								this.$message.success(resp.data.message);
+								this.showVideo = false;
+							} else {
+								this.$message.warning(resp.data.message);
+							}
+						}).catch(() => {
+							this.$message.error('遇到异常')
+						})
+				}
+			},
+
+			// 提交表单
+			submitForm(formName) {
+				this.$refs[formName].validate(valid => {
+					if (valid) {
+						let params = new FormData();
+						for (let key in this.ruleForm) {
+							params.append(key, this.ruleForm[key]);
+						}
+						axios.post(`http://localhost:8080/edu01/courseServlet?mark=addCourse`,
+							params)
+							.then(resp => {
+								if (resp.data.code == 200) {
+									this.$message.success(resp.data.message);
+									// 刷新页面
+									// setTimeout(() => {
+									// 	location.reload();
+									// }, 1000);
+
+									// 重置表单	重置图片和视频上传
+									this.$refs[formName].resetFields();
+									this.$refs.image.clearFiles();
+									this.showImage = false;
+									this.$refs.video.clearFiles();
+									this.showVideo = false;
+								} else {
+									this.$message.warning(resp.data.message);
+								}
+							})
+							.catch(err => {
+								console.error(err);
+							})
+					} else {
+						this.$message.warning('表单验证失败');
+					}
+				})
+			}
+
+		}
+	})
+</script>
+
+</html>

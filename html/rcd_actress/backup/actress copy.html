@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>女优</title>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="../../element-ui-2.13.0/lib/theme-chalk/index.css" />
+	<link rel="stylesheet" href="../../css/main.css" />
+	<script src="../../js/vue.js"></script>
+	<script src="../../js/axios.js"></script>
+	<script type="text/javascript" src="../../element-ui-2.13.0/lib/index.js"></script>
+	<link rel="stylesheet" href="../../css/index.css">
+
+</head>
+
+<body class="fanhao">
+	<div id="app">
+		<div class="itemArea">
+			<div style="font-size: 20px; margin-bottom: 8px;">查看选项</div>
+			<div class="itemTypeOne">
+				<el-checkbox :indeterminate="isIndeterminate" @change="" class="itemTypeName">女优:</el-checkbox>
+				<el-checkbox-group v-model="baseItemChecked" @change="">
+					<el-checkbox class="item" v-for="(value, key) in baseItem" :label="key" :key="key">{{value}}
+					</el-checkbox>
+				</el-checkbox-group>
+			</div>
+			<div class="itemTypeOne">
+				<el-checkbox :indeterminate="isIndeterminate" @change="" class="itemTypeName">女优名:</el-checkbox>
+				<el-checkbox-group v-model="nameItemChecked" @change="">
+					<el-checkbox class="item" v-for="(value, key) in nameItem" :label="key" :key="key">{{value}}
+					</el-checkbox>
+				</el-checkbox-group>
+			</div>
+			<div class="itemTypeOne">
+				<el-checkbox :indeterminate="isIndeterminate" @change="" class="itemTypeName">相貌:</el-checkbox>
+				<el-checkbox-group v-model="xmItemChecked" @change="">
+					<el-checkbox class="item" v-for="(value, key) in xmItem" :label="key" :key="key">{{value}}
+					</el-checkbox>
+				</el-checkbox-group>
+			</div>
+			<div class="itemTypeOne">
+				<el-checkbox :indeterminate="isIndeterminate" @change="" class="itemTypeName">体型:</el-checkbox>
+				<el-checkbox-group v-model="txItemChecked" @change="">
+					<el-checkbox class="item" v-for="(value, key) in txItem" :label="key" :key="key">{{value}}
+					</el-checkbox>
+				</el-checkbox-group>
+			</div>
+			<div class="itemTypeOne">
+				<el-checkbox :indeterminate="isIndeterminate" @change="" class="itemTypeName">气质:</el-checkbox>
+				<el-checkbox-group v-model="qzItemChecked" @change="">
+					<el-checkbox class="item" v-for="(value, key) in qzItem" :label="key" :key="key">{{value}}
+					</el-checkbox>
+				</el-checkbox-group>
+			</div>
+			<div class="itemTypeOne">
+				<el-checkbox :indeterminate="isIndeterminate" @change="" class="itemTypeName">出生:</el-checkbox>
+				<el-checkbox-group v-model="birthItemChecked" @change="">
+					<el-checkbox class="item" v-for="(value, key) in birthItem" :label="key" :key="key">{{value}}
+					</el-checkbox>
+				</el-checkbox-group>
+			</div>
+			<div class="itemTypeOne">
+				<el-checkbox :indeterminate="isIndeterminate" @change="" class="itemTypeName">出道:</el-checkbox>
+				<el-checkbox-group v-model="cdItemChecked" @change="">
+					<el-checkbox class="item" v-for="(value, key) in cdItem" :label="key" :key="key">{{value}}
+					</el-checkbox>
+				</el-checkbox-group>
+			</div>
+			<div class="itemTypeOne">
+				<el-checkbox :indeterminate="isIndeterminate" @change="" class="itemTypeName">身材:</el-checkbox>
+				<el-checkbox-group v-model="scItemChecked" @change="">
+					<el-checkbox class="item" v-for="(value, key) in scItem" :label="key" :key="key">{{value}}
+					</el-checkbox>
+				</el-checkbox-group>
+			</div>
+			<div class="itemTypeOne">
+				<el-checkbox :indeterminate="isIndeterminate" @change="" class="itemTypeName">收录情况:</el-checkbox>
+				<el-checkbox-group v-model="recordingItemChecked" @change="">
+					<el-checkbox class="item" v-for="(value, key) in recordingItem" :label="key" :key="key">{{value}}
+					</el-checkbox>
+				</el-checkbox-group>
+			</div>
+		</div>
+		<!-- {{fanhaoBaseItemChecked}}
+		{{performerItemChecked}}
+		{{yanzhiItemChecked}} -->
+		{{nowSelectedItem}}
+		<div>
+
+
+
+
+		</div>
+
+		<template>
+			<el-button size="mini" @click="add()">添加</el-button>
+			<el-table :data="actresList" @selection-change="handleSelectionChange" size="medium"
+				highlight-current-row="true" style="width: 100%">
+				<el-table-column width="55px" label="" type="index"></el-table-column>
+				<!-- <el-table-column type="expand">
+					<template slot-scope="props">
+						<el-form label-position="left" inline class="demo-table-expand">
+
+							<el-form-item v-for="(value, key) in allItem" :label="value">
+								<span>{{ expandKeyGetValue(props.row, key) }}</span>
+							</el-form-item>
+
+						</el-form>
+					</template>
+				</el-table-column> -->
+				<el-table-column type="selection" width="55" prop="sysFanhao"></el-table-column>
+				<el-table-column v-for="(value, key) in allItem" :label="value" :key="key" :prop="key"
+					:width="activeWidth(key)" v-if="nowSelectedItem.includes(key)">
+					<template slot-scope="props">
+						<span>{{ match(props.row, key) }}</span>
+					</template>
+				</el-table-column>
+
+				<el-table-column label="操作">
+					<template slot-scope="scope">
+						<el-button size="mini" @click="handleEdit(scope.$index, scope.row)">修改</el-button>
+						<el-button size="mini" type="success" @click="handlelook(scope.$index, scope.row)">删除
+						</el-button>
+					</template>
+				</el-table-column>
+			</el-table>
+		</template>
+
+	</div>
+</body>
+<script>
+	axios.defaults.baseURL = 'http://localhost:9090'
+	//axios.defaults.withCredentials = true
+	new Vue({
+		el: "#app",
+		data: {
+			/*分页相关*/
+			allItem: {
+				"keyActressNo": "女优编号",
+				"nameStage": "艺名",
+
+				"nameJpTrue": "日文真名",
+				"nameCn": "中文名",
+				"nameEn": "英文名",
+				"nameOther": "别名",
+
+				"xmAppearanceIndex": "颜值",
+				"xmAppearanceType": "相貌类型",
+				"xmSkinColor": "肤色",
+				"xmFaceType": "脸型",
+				"xmLike": "印象",
+
+				"qzCharacter": "性格",
+
+				"txTallOrShort": "高低",
+				"txFatOrThin": "胖瘦",
+				"txTitSize": "奶子大小",
+				"txHipType": "臀型",
+				"txHipDistance": "胯距",
+				"txLegsType": "腿型",
+				"txLegsThickness": "腿粗细",
+
+				"birthYmd": "出生年月日",
+				"birthPlace": "出生地",
+				"birthCountry": "国家",
+
+				"hxColor": "颜色",
+				"hxType": "户型",
+				"hxWhiteTiger": "白虎",
+
+				"cdDebutYmd": "出道年月日",
+				"cdDebutAge": "出道年龄",
+				"cdRetireYmd": "隐退年月日",
+				"cdRetireAge": "隐退年龄",
+				"cdPeriods": "出道期间",
+
+
+				"scHeight": "身高",
+				"scWeight": "体重",
+				"scCup": "杯罩",
+				"scBust": "三围",
+
+				"rcRecordTime": "收录时间",
+				"rcRecorder": "收录人",
+				"rcLastModifiedTime": "最后修改时间",
+				"rcLastModifier": "最后修改人",
+				"rcDataStatus": "数据状态",
+			},
+			// itemsOption: [
+			// 	{
+			// 		itemtype: "编号",
+			// 		items: {"keyActressNo": "编号"},
+			// 		itemsChecked: 
+			// 	}
+			// ],
+			// 女优基本信息
+			baseItem: { "keyActressNo": "编号", "nameStage": "艺名;" },
+			baseItemChecked: ["keyActressNo", "nameStage"],
+			// 名字信息
+			nameItem: { "nameJpTrue": "日文真名;", "nameCn": "中文名;", "nameEn": "英文名;", "nameOther": "别名;", },
+			nameItemChecked: ["nameCn"],
+			// 相貌
+			xmItem: { "xmAppearanceIndex": "颜值", "xmAppearanceType": "相貌类型", "xmSkinColor": "肤色", "xmFaceType": "脸型", "xmLike": "印象" },
+			xmItemChecked: ["xmAppearanceIndex", "xmAppearanceType"],
+			// 出生情况
+			birthItem: { "birthYmd": "出生年月日;", "birthCountry": "国家", "birthPlace": "出生地;" },
+			birthItemChecked: ["birthYmd", "birthCountry"],
+			// 出道情况
+			cdItem: { "cdDebutYmd": "出道年月日", "cdDebutAge": "出道年龄", "cdRetireYmd": "隐退年月日", "cdRetireAge": "隐退年龄", "cdPeriods": "出道期间" },
+			cdItemChecked: ["cdDebutAge"],
+			// 气质
+			qzItem: { "qzCharacter": "性格" },
+			qzItemChecked: ["qzCharacter"],
+			// 体型
+			txItem: { "txTallOrShort": "高低", "txFatOrThin": "胖瘦", "txTitSize": "奶子大小", "txHipType": "臀型", "txHipDistance": "胯距", "txLegsType": "腿型", "txLegsThickness": "腿粗细" },
+			txItemChecked: ["txTallOrShort", "txFatOrThin", "txHipDistance"],
+			// 户型
+			hxItem: { "hxColor": "颜色", "hxType": "户型", "hxWhiteTiger": "白虎" },
+			hxItemChecked: ["txTallOrShort", "txFatOrThin", "txHipDistance"],
+			// 身材
+			scItem: { "scHeight": "身高", "scBust": "三围;", "scCup": "杯罩", "scWeight": "体重" },
+			scItemChecked: ["scFatLv", "scHipDistance"],
+
+			// 收录情况
+			recordingItem: { "rcRecordTime": "收录时间;", "rcRecorder": "收录人;", "rcLastModifiedTime": "最后修改时间;", "rcLastModifier": "最后修改人;", "rcDataStatus": "数据状态" },
+			recordingItemChecked: ["rcDataStatus"],
+
+
+
+
+			actresList: []
+
+		},
+
+		computed: {
+			nowSelectedItem: function () {
+				return [].concat(this.baseItemChecked, this.nameItemChecked, this.xmItemChecked, this.birthItemChecked,
+					this.cdItemChecked, this.scItemChecked, this.recordingItemChecked, this.hxItemChecked, this.qzItemChecked, this.txItemChecked)
+			},
+
+		},
+
+		methods: {
+
+			//确认修改
+			add() {
+
+
+			},
+
+			queryActressList() {
+				axios.get('/actress/queryActressList')
+					.then(res => {
+						console.log(res)
+						console.log(res.data)
+						this.actresList = res.data;
+					})
+					.catch(err => {
+						console.error(err);
+					})
+			},
+
+			activeWidth: function (field) {
+				if (["filmTitle"].includes(field)) {
+					return 300;
+				} else {
+					return 150;
+				}
+			},
+
+			expandKeyGetValue(row, key) {
+				console.log(row, key);
+				for (let i in row) {
+					if (i == key) {
+						return row[i];
+					}
+				}
+			},
+
+			match(row, key) {
+				console.log(row, key);
+				for (let i in row) {
+					if (i == key) {
+						return row[i];
+					}
+				}
+			}
+
+		},
+
+		created() {
+			console.log('created')
+		},
+
+		mounted() {
+			this.queryActressList();
+		},
+
+
+
+
+
+	})
+</script>
+
+</html>

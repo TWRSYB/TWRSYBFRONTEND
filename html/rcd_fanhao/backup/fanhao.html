@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>番号</title>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="../../element-ui-2.13.0/lib/theme-chalk/index.css" />
+	<script src="../../js/vue.js"></script>
+	<script src="../../js/axios.js"></script>
+	<script type="text/javascript" src="../../element-ui-2.13.0/lib/index.js"></script>
+	<link rel="stylesheet" href="../../css/index.css">
+
+</head>
+
+<body>
+	<div id="app">
+		<div>查看选项<br>
+			<template>
+				<el-checkbox :indeterminate="isIndeterminate" @change="">番号基本信息</el-checkbox>
+				<el-checkbox-group v-model="fanhaoBaseItemChecked" @change="fanhaoBaseItemCheck">
+				  <el-checkbox v-for="(value, key) in fanhaoBaseItem" :label="key" :key="key">{{value}}</el-checkbox>
+				</el-checkbox-group>
+			</template>
+		</div>
+		{{nowSelectedItem}}
+		<div>
+
+
+
+
+		</div>
+
+		<template>
+			<el-button size="mini" @click="add()">添加</el-button>
+			<el-table :data="fanhaoList" @selection-change="handleSelectionChange" size="medium"
+				highlight-current-row="true" style="width: 100%">
+				<el-table-column width="55px" label="序号" type="index"></el-table-column>
+				<el-table-column type="selection" width="55" prop="seriesId"></el-table-column>
+				<el-table-column label="系列" prop="series"></el-table-column>
+				<el-table-column label="子系列" prop="subSeries"></el-table-column>
+				<el-table-column label="原番号" prop="primitiveFanhao"></el-table-column>
+				<el-table-column label="系统番号" prop="sysFanhao"></el-table-column>
+				<el-table-column label="影片名称" prop="filmTitle"></el-table-column>
+				<el-table-column label="发行年月日" prop="issueYmd"></el-table-column>
+
+				<el-table-column label="女优数" prop="actressNum"></el-table-column>
+				<el-table-column label="女优编号" prop="actressNo"></el-table-column>
+				<el-table-column label="女优" prop="actress"></el-table-column>
+				<el-table-column label="男优数" prop="actorNum"></el-table-column>
+				<el-table-column label="男优编号" prop="actorNo"></el-table-column>
+				<el-table-column label="人妖数" prop="ladyboyNum"></el-table-column>
+				<el-table-column label="人妖编号" prop="ladyboyNo"></el-table-column>
+				<el-table-column label="兽类" prop="beastType"></el-table-column>
+
+				<el-table-column label="肛交级别" prop="analSexLv"></el-table-column>
+				<el-table-column label="灌肠级别" prop="enemaLv"></el-table-column>
+				<el-table-column label="内窥肛门与否" prop="endoscopyAnalYn"></el-table-column>
+				<el-table-column label="肛门灌精级别" prop="analInjectSemenLv"></el-table-column>
+				<el-table-column label="肛门同时插入鸡巴数" prop="analCoexistPenisNum"></el-table-column>
+
+				<el-table-column label="内窥阴道与否" prop="endoscopyVaginaYn"></el-table-column>
+				<el-table-column label="阴道灌精级别" prop="injectSemenLv"></el-table-column>
+				<el-table-column label="阴道同时插入鸡巴数" prop="coexistPenisNum"></el-table-column>
+
+				<el-table-column label="口交级别" prop="oralSexLv"></el-table-column>
+				<el-table-column label="吞精级别" prop="swallowSemenLv"></el-table-column>
+				<el-table-column label="口爆级别" prop="mouthEjaculateLv"></el-table-column>
+				<el-table-column label="阴道同时插入鸡巴数" prop="monthCoexistPenisNum"></el-table-column>
+
+				<el-table-column label="捆绑级别" prop="tieLv"></el-table-column>
+				<el-table-column label="颜射级别" prop="faceEjaculateLv"></el-table-column>
+				<el-table-column label="白虎级别" prop="whiteTigerLv"></el-table-column>
+
+				<el-table-column label="场景" prop="sceneType"></el-table-column>
+				<el-table-column label="角色" prop="roleType"></el-table-column>
+				<el-table-column label="剧情" prop="storyType"></el-table-column>
+
+				<el-table-column label="收录时间" prop="recordingTime"></el-table-column>
+				<el-table-column label="收录人" prop="recorder"></el-table-column>
+				<el-table-column label="最后修改时间" prop="lastModifiedTime"></el-table-column>
+				<el-table-column label="最后修改人" prop="lastModifier"></el-table-column>
+				<el-table-column label="数据状态" prop="dataStatus"></el-table-column>
+
+
+				<el-table-column label="操作">
+					<template slot-scope="scope">
+						<el-button size="mini" v-if="scope.row.seriesId==='new'"
+							@click="comfirmAdd(scope.$index, scope.row)">添加</el-button>
+						<el-button size="mini" @click="handleEdit(scope.$index, scope.row)">修改</el-button>
+						<el-button size="mini" type="success" @click="handlelook(scope.$index, scope.row)">删除
+						</el-button>
+					</template>
+				</el-table-column>
+			</el-table>
+		</template>
+
+	</div>
+</body>
+<script>
+	axios.defaults.baseURL = 'http://localhost:9090'
+	//axios.defaults.withCredentials = true
+	new Vue({
+		el: "#app",
+		data: {
+			/*分页相关*/
+			nowSelectedItem: [],
+			defaultSelectedItem: ["series", "sysFanhao", "filmTitle", "actressNo", "actorNo", "injectSemenLv", "analSexLv", "oralSexLv", "whiteTigerLv"],
+			allItem: {
+				"series": "系列",
+				"subSeries": "子系列",
+				"primitiveFanhao": "原番号",
+				"sysFanhao": "系统番号",
+				"filmTitle": "影片名称",
+				"issueYmd": "发行年月日",
+
+				"actressNum": "女优数",
+				"actressNo": "女优编号",
+				"actress": "女优;",
+				"actorNum": "男优数",
+				"actorNo": "男优编号",
+				"ladyboyNum": "人妖数",
+				"ladyboyNo": "人妖编号",
+				"beastType": "兽类",
+
+				"coexistPenisNum": "阴道同时插入鸡巴数",
+				"injectSemenLv": "阴道灌精级别",
+				"endoscopyVaginaYn": "内窥阴道与否",
+
+				"analSexLv": "肛交级别",
+				"analEnemaLv": "肛门灌肠级别",
+				"analCoexistPenisNum": "肛门同时插入鸡巴数",
+				"analInjectSemenLv": "肛门灌精级别",
+				"analEndoscopyYn": "肛门内窥与否",
+				
+				"mouthEjaculateLv": "口爆级别",
+				"oralSexLv": "口交级别",
+				"swallowSemenLv": "吞精级别",
+				"monthCoexistPenisNum": "嘴同时插入鸡巴数",
+				
+				"tieLv": "捆绑级别",
+				"faceEjaculateLv": "颜射级别",
+				"whiteTigerLv": "白虎级别",
+
+				"sceneType": "场景",
+				"roleType": "角色",
+				"storyType": "剧情",
+				
+				"recordingTime": "收录时间;",
+				"recorder": "收录人;",
+				"lastModifiedTime": "最后修改时间;",
+				"lastModifier": "最后修改人",
+				"dataStatus": "数据状态",
+			},
+			// 番号基本信息
+			fanhaoBaseItem: {"series": "系列", "subSeries": "子系列", "primitiveFanhao": "原番号", "sysFanhao": "系统番号", "filmTitle": "影片名称;", "issueYmd": "发行年月日;"},
+			fanhaoBaseItemChecked: [],
+			// 演员信息
+			performerItem: {"actressNum": "女优数",	"actressNo": "女优编号", "actress": "女优;",	"actorNum": "男优数", "actorNo": "男优编号", "ladyboyNum": "人妖数", "ladyboyNo": "人妖编号", "beastType": "兽类"},
+			performerItemChecked: [],
+			// 性交情况
+			vaginaSexItem: {"coexistPenisNum": "阴道同时插入鸡巴数;", "injectSemenLv": "阴道灌精级别", "endoscopyVaginaYn": "内窥阴道与否"},
+			vaginaSexItemChecked: [],
+			// 肛交情况
+			analSexItem: {"analSexLv": "肛交级别", "analEnemaLv": "肛门灌肠级别", "analCoexistPenisNum": "肛门同时插入鸡巴数;", "analInjectSemenLv": "肛门灌精级别;", "analEndoscopyYn": "肛门内窥与否"},
+			analSexItemChecked: [],
+			// 口交情况
+			oralSexItem: {"mouthEjaculateLv": "口爆级别", "oralSexLv": "口交级别", "swallowSemenLv": "吞精级别", "monthCoexistPenisNum": "嘴同时插入鸡巴数;"},
+			oralSexItemChecked: [],
+			// 其他特色
+			otherSpecialItem: {"tieLv": "捆绑级别",	"faceEjaculateLv": "颜射级别",	"whiteTigerLv": "白虎级别"},
+			otherSpecialItemChecked: [],
+			// 剧情
+			plotItem: {"sceneType": "场景",	"roleType": "角色",	"storyType": "剧情"},
+			plotItemChecked: [],
+			// 收录情况
+			recordingItem: {"recordingTime": "收录时间;","recorder": "收录人;",	"lastModifiedTime": "最后修改时间;","lastModifier": "最后修改人","dataStatus": "数据状态"},
+			recordingItemChecked: [],
+			
+
+
+
+			fanhaoList: []
+
+		},
+
+		methods: {
+
+			//确认修改
+			add() {
+				this.seriesList.push(
+					{ "status": "0", "seriesId": "0", "areaId": "0", "producer": "未录入", "series": "未录入", "investor": "未录入", "fanhaoSymbol": " ", "seriesResume": " ", "seriesDetails": " " }
+				);
+
+			},
+
+			queryFanhaoList() {
+				axios.get('/fanhao/queryFanhaoList')
+					.then(res => {
+						console.log(res)
+						console.log(res.data)
+						this.fanhaoList = res.data;
+					})
+					.catch(err => {
+						console.error(err);
+					})
+			}
+		},
+
+		created() {
+			console.log('created')
+		},
+
+		mounted() {
+			this.queryFanhaoList();
+		},
+
+
+
+
+
+	})
+</script>
+
+</html>

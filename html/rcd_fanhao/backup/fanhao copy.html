@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>番号</title>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="../../element-ui-2.13.0/lib/theme-chalk/index.css" />
+	<link rel="stylesheet" href="../../css/main.css" />
+	<script src="../../js/vue.js"></script>
+	<script src="../../js/axios.js"></script>
+	<script type="text/javascript" src="../../element-ui-2.13.0/lib/index.js"></script>
+	<link rel="stylesheet" href="../../css/index.css">
+
+</head>
+
+<body class="fanhao">
+	<div id="app">
+		<div class="itemArea">
+			<div style="font-size: 20px; margin-bottom: 8px;">查看选项</div>
+			<div class="itemTypeOne">
+				<el-checkbox :indeterminate="isIndeterminate" @change="" class="itemTypeName">番号基本信息:</el-checkbox>
+				<el-checkbox-group v-model="fanhaoBaseItemChecked" @change="fanhaoBaseItemCheck">
+				  <el-checkbox class="item" v-for="(value, key) in fanhaoBaseItem" :label="key" :key="key">{{value}}</el-checkbox>
+				</el-checkbox-group>
+			</div>
+			<div class="itemTypeOne">
+				<el-checkbox :indeterminate="isIndeterminate" @change="" class="itemTypeName">演员信息:</el-checkbox>
+				<el-checkbox-group v-model="performerItemChecked" @change="fanhaoBaseItemCheck">
+				  <el-checkbox class="item" v-for="(value, key) in performerItem" :label="key" :key="key">{{value}}</el-checkbox>
+				</el-checkbox-group>
+			</div>
+			<div class="itemTypeOne">
+				<el-checkbox :indeterminate="isIndeterminate" @change="" class="itemTypeName">性交情况:</el-checkbox>
+				<el-checkbox-group v-model="vaginaSexItemChecked" @change="fanhaoBaseItemCheck">
+				  <el-checkbox class="item" v-for="(value, key) in vaginaSexItem" :label="key" :key="key">{{value}}</el-checkbox>
+				</el-checkbox-group>
+			</div>
+			<div class="itemTypeOne">
+				<el-checkbox :indeterminate="isIndeterminate" @change="" class="itemTypeName">肛交情况:</el-checkbox>
+				<el-checkbox-group v-model="analSexItemChecked" @change="fanhaoBaseItemCheck">
+				  <el-checkbox class="item" v-for="(value, key) in analSexItem" :label="key" :key="key">{{value}}</el-checkbox>
+				</el-checkbox-group>
+			</div>
+			<div class="itemTypeOne">
+				<el-checkbox :indeterminate="isIndeterminate" @change="" class="itemTypeName">口交情况:</el-checkbox>
+				<el-checkbox-group v-model="oralSexItemChecked" @change="fanhaoBaseItemCheck">
+				  <el-checkbox class="item" v-for="(value, key) in oralSexItem" :label="key" :key="key">{{value}}</el-checkbox>
+				</el-checkbox-group>
+			</div>
+			<div class="itemTypeOne">
+				<el-checkbox :indeterminate="isIndeterminate" @change="" class="itemTypeName">其他特色:</el-checkbox>
+				<el-checkbox-group v-model="otherSpecialItemChecked" @change="fanhaoBaseItemCheck">
+				  <el-checkbox class="item" v-for="(value, key) in otherSpecialItem" :label="key" :key="key">{{value}}</el-checkbox>
+				</el-checkbox-group>
+			</div>
+			<div class="itemTypeOne">
+				<el-checkbox :indeterminate="isIndeterminate" @change="" class="itemTypeName">剧情:</el-checkbox>
+				<el-checkbox-group v-model="plotItemChecked" @change="fanhaoBaseItemCheck">
+				  <el-checkbox class="item" v-for="(value, key) in plotItem" :label="key" :key="key">{{value}}</el-checkbox>
+				</el-checkbox-group>
+			</div>
+			<div class="itemTypeOne">
+				<el-checkbox :indeterminate="isIndeterminate" @change="" class="itemTypeName">收录情况:</el-checkbox>
+				<el-checkbox-group v-model="recordingItemChecked" @change="fanhaoBaseItemCheck">
+				  <el-checkbox class="item" v-for="(value, key) in recordingItem" :label="key" :key="key">{{value}}</el-checkbox>
+				</el-checkbox-group>
+			</div>
+		</div>
+		<!-- {{fanhaoBaseItemChecked}}
+		{{performerItemChecked}}
+		{{vaginaSexItemChecked}} -->
+		{{nowSelectedItem}}
+		<div>
+
+
+
+
+		</div>
+
+		<template>
+			<el-button size="mini" @click="add()">添加</el-button>
+			<el-table :data="fanhaoList" @selection-change="handleSelectionChange" size="medium"
+				highlight-current-row="true" style="width: 100%">
+				<el-table-column width="55px" label="" type="index"></el-table-column>
+				<el-table-column type="selection" width="55" prop="sysFanhao"></el-table-column>
+				<el-table-column v-for="(value, key) in allItem" :label="value" :key="key" :prop="key" :width="activeWidth(key)" v-if="nowSelectedItem.includes(key)"></el-table-column>
+
+				<el-table-column label="操作">
+					<template slot-scope="scope">
+						<el-button size="mini" @click="handleEdit(scope.$index, scope.row)">修改</el-button>
+						<el-button size="mini" type="success" @click="handlelook(scope.$index, scope.row)">删除
+						</el-button>
+					</template>
+				</el-table-column>
+			</el-table>
+		</template>
+
+	</div>
+</body>
+<script>
+	axios.defaults.baseURL = 'http://localhost:9090'
+	//axios.defaults.withCredentials = true
+	new Vue({
+		el: "#app",
+		data: {
+			/*分页相关*/
+			
+			defaultSelectedItem: ["series", "sysFanhao", "filmTitle", "actressNo", "actorNo", "injectSemenLv", "analSexLv", "oralSexLv", "whiteTigerLv"],
+			allItem: {
+				"series": "系列",
+				"subSeries": "子系列",
+				"primitiveFanhao": "原番号",
+				"sysFanhao": "系统番号",
+				"filmTitle": "影片名称",
+				"issueYmd": "发行年月日",
+
+				"actressNum": "女优数",
+				"actressNo": "女优编号",
+				"actress": "女优;",
+				"actorNum": "男优数",
+				"actorNo": "男优编号",
+				"ladyboyNum": "人妖数",
+				"ladyboyNo": "人妖编号",
+				"beastType": "兽类",
+
+				"coexistPenisNum": "阴道同时插入鸡巴数",
+				"injectSemenLv": "阴道灌精级别",
+				"endoscopyVaginaYn": "内窥阴道与否",
+
+				"analSexLv": "肛交级别",
+				"analEnemaLv": "肛门灌肠级别",
+				"analCoexistPenisNum": "肛门同时插入鸡巴数",
+				"analInjectSemenLv": "肛门灌精级别",
+				"analEndoscopyYn": "肛门内窥与否",
+				
+				"mouthEjaculateLv": "口爆级别",
+				"oralSexLv": "口交级别",
+				"swallowSemenLv": "吞精级别",
+				"monthCoexistPenisNum": "嘴同时插入鸡巴数",
+				
+				"tieLv": "捆绑级别",
+				"faceEjaculateLv": "颜射级别",
+				"whiteTigerLv": "白虎级别",
+
+				"sceneType": "场景",
+				"roleType": "角色",
+				"storyType": "剧情",
+				
+				"recordingTime": "收录时间;",
+				"recorder": "收录人;",
+				"lastModifiedTime": "最后修改时间;",
+				"lastModifier": "最后修改人",
+				"dataStatus": "数据状态",
+			},
+			// 番号基本信息
+			fanhaoBaseItem: {"series": "系列", "subSeries": "子系列", "primitiveFanhao": "原番号", "sysFanhao": "系统番号", "filmTitle": "影片名称", "issueYmd": "发行年月日"},
+			fanhaoBaseItemChecked: ["series", "sysFanhao", "filmTitle"],
+			// 演员信息
+			performerItem: {"actressNum": "女优数",	"actressNo": "女优编号", "actress": "女优;",	"actorNum": "男优数", "actorNo": "男优编号", "ladyboyNum": "人妖数", "ladyboyNo": "人妖编号", "beastType": "兽类"},
+			performerItemChecked: ["actressNo", "actorNo"],
+			// 性交情况
+			vaginaSexItem: {"coexistPenisNum": "阴道同时插入鸡巴数", "injectSemenLv": "阴道灌精级别", "endoscopyVaginaYn": "内窥阴道与否"},
+			vaginaSexItemChecked: ["injectSemenLv"],
+			// 肛交情况
+			analSexItem: {"analSexLv": "肛交级别", "analEnemaLv": "肛门灌肠级别", "analCoexistPenisNum": "肛门同时插入鸡巴数", "analInjectSemenLv": "肛门灌精级别", "analEndoscopyYn": "肛门内窥与否"},
+			analSexItemChecked: ["analSexLv"],
+			// 口交情况
+			oralSexItem: {"mouthEjaculateLv": "口爆级别", "oralSexLv": "口交级别", "swallowSemenLv": "吞精级别", "monthCoexistPenisNum": "嘴同时插入鸡巴数"},
+			oralSexItemChecked: ["oralSexLv"],
+			// 其他特色
+			otherSpecialItem: {"tieLv": "捆绑级别",	"faceEjaculateLv": "颜射级别",	"whiteTigerLv": "白虎级别"},
+			otherSpecialItemChecked: ["whiteTigerLv"],
+			// 剧情
+			plotItem: {"sceneType": "场景",	"roleType": "角色",	"storyType": "剧情"},
+			plotItemChecked: [],
+			// 收录情况
+			recordingItem: {"recordingTime": "收录时间","recorder": "收录人",	"lastModifiedTime": "最后修改时间","lastModifier": "最后修改人","dataStatus": "数据状态"},
+			recordingItemChecked: [],
+			
+
+
+
+			fanhaoList: []
+
+		},
+
+		computed: {
+			nowSelectedItem: function(){
+				console.log('计算动态属性nowSelectedItem')
+				return [].concat(this.fanhaoBaseItemChecked,this.performerItemChecked,this.vaginaSexItemChecked,this.analSexItemChecked,
+				this.oralSexItemChecked,this.otherSpecialItemChecked,this.plotItemChecked,this.recordingItemChecked)
+				// return this.fanhaoBaseItemChecked
+			},
+
+		},
+
+		methods: {
+
+			//确认修改
+			add() {
+
+
+			},
+
+			queryFanhaoList() {
+				axios.get('/fanhao/queryFanhaoList')
+					.then(res => {
+						console.log(res)
+						console.log(res.data)
+						this.fanhaoList = res.data;
+					})
+					.catch(err => {
+						console.error(err);
+					})
+			},
+
+			activeWidth: function(field){
+				if(["filmTitle"].includes(field)){
+					return 300;
+				} else {
+					return 100;
+				}
+			}
+		},
+
+		created() {
+			console.log('created')
+		},
+
+		mounted() {
+			this.queryFanhaoList();
+		},
+
+
+
+
+
+	})
+</script>
+
+</html>

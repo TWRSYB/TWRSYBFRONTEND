@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>录入番号</title>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="../../element-ui-2.13.0/lib/theme-chalk/index.css" />
+	<link rel="stylesheet" href="../../css/main.css" />
+	<script src="../../js/vue.js"></script>
+	<script src="../../js/axios.js"></script>
+	<script type="text/javascript" src="../../element-ui-2.13.0/lib/index.js"></script>
+	<link rel="stylesheet" href="../../css/index.css">
+
+</head>
+
+<body class="addFanhao">
+	<div id="app">
+		<!-- 检索区域 -->
+		<div class="searchArea">
+			<el-form ref="searchConditions " :model="searchConditions" label-width="80px" @submit.native.prevent>
+				<el-form-item class="rowOne" label="检索番号">
+					<el-input class="input" v-model="searchConditions.keyWord" placeholder="请输入番号或影片名称进行检索" style="width: 400px;"
+						@keyup.enter.native="fanhaoSearch()">
+					</el-input>
+					<el-button type="primary" @click="fanhaoSearch">查询</el-button>
+				</el-form-item>
+			</el-form>
+			<template>
+				<el-table :data="searchRes" height="250" border style="width: 100%"
+					@row-click="viewFanhaoPic">
+					<el-table-column prop="fhSeries" label="系列" width="180"> </el-table-column>
+					<el-table-column prop="fhSysFanhao" label="系统番号" width="180"> </el-table-column>
+					<el-table-column prop="fhPrimitiveFanhao" label="原番号"> </el-table-column>
+					<el-table-column prop="ypFilmTitle" label="影片名"> </el-table-column>
+					<el-table-column prop="ypSubSeries" label="子系列"> </el-table-column>
+					<el-table-column prop="ypIssueYmd" label="发行日期"> </el-table-column>
+					<el-table-column label="确认">
+						<template slot-scope="scope">
+							<el-button size="mini" @click="isThis(scope.$index, scope.row)">是</el-button>
+							<el-button size="mini" @click.stop="notThis(scope.$index, scope.row)">不是</el-button>
+						</template>
+					</el-table-column>
+				</el-table>
+			</template>
+			<div style="display: flex;">
+				<div class="demo-image__preview" v-for="item in selectedFanhao.headPicList"
+					style="margin: 5px; border: 1px solid #efefef;padding: 2px;">
+					<el-image style="height: 115px" :src="item" :preview-src-list="selectedNameLikeActress.headPicList">
+					</el-image>
+				</div>
+			</div>
+		</div>
+		<!-- Form表单区域 -->
+		<div class="inputArea">
+			<el-form ref="fanhao" :model="fanhao" label-width="100px" class="form">
+				<div class="infoTypeOne" v-for="fieldPackage in tableDesign.fieldPackages">
+					<div class="infoType">{{fieldPackage.typeName}}:</div>
+					<div class="infoCheck">
+						<template v-for="field in fieldPackage.fields">
+
+
+							<el-form-item class="itemOne" :label="field.columnComment" v-if="field.type == 'text'"
+								:style="activeItemOneStyle(field)">
+								<el-input class="input" v-model="fanhao[field.columnName]"
+									:placeholder="field.columnComment" :disabled="field.columnName.startsWith('key')">
+								</el-input>
+							</el-form-item>
+
+							<el-form-item class="itemOne" :label="field.columnComment" v-if="field.type == 'textarea'"
+								:style="activeItemOneStyle(field)">
+								<el-input type="textarea" :rows="2" v-model="fanhao[field.columnName]"
+									:placeholder="field.columnComment">
+								</el-input>
+							</el-form-item>
+
+							<el-form-item class="itemOne" :label="field.columnComment" v-if="field.type == 'lv'"
+								:style="activeItemOneStyle(field)">
+								<el-radio-group v-model="fanhao[field.columnName]">
+									<el-radio-button v-for="(value, key, index) in field.lvs" :label="key" :key="key">
+										{{value}}
+									</el-radio-button>
+								</el-radio-group>
+							</el-form-item>
+
+							<el-form-item class="itemOne" :label="field.columnComment" v-if="field.type == 'type'"
+								:style="activeItemOneStyle(field)">
+								<el-radio-group v-model="fanhao[field.columnName]">
+									<el-radio-button v-for="(item, index) in field.types" :label="item" :key="item">
+									</el-radio-button>
+								</el-radio-group>
+							</el-form-item>
+
+							<el-form-item class="itemOne" :label="field.columnComment" v-if="field.type == 'ymd'"
+								:style="activeItemOneStyle(field)">
+								<el-date-picker format="yyyyMMdd" value-format="yyyyMMdd"
+									v-model="fanhao[field.columnName]" :placeholder="field.columnComment">
+								</el-date-picker>
+							</el-form-item>
+
+						</template>
+						<el-button type="primary" @click="gnrtFanhao"
+							v-if="fieldPackage.type == 'fh' && nowEditMode == 0" style="margin-left: 105px;">生成系统番号</el-button>
+
+						<div v-if="fieldPackage.type == 'main' && sameStageNameAlert" style="color: red;">已经存在相同的番号</div>
+
+
+					</div>
+				</div>
+				<div class="btnArea">
+					<el-button type="primary" @click="updateFanhao" :disabled="nowEditMode == 0">修改信息</el-button>
+					<el-button type="" @click="resetForm">重置</el-button>
+				</div>
+
+			</el-form>
+		</div>
+
+	</div>
+</body>
+<script>
+	axios.defaults.baseURL = 'http://localhost:9090';
+	Vue.config.productionTip = false;
+	//axios.defaults.withCredentials = true
+	new Vue({
+		el: "#app",
+		data: {
+			
+			// 检索女优相关
+			searchConditions: {				// 检索条件
+				keyWord: "",				// 关键字
+				model: "fanhao"				// 检索模式 [like, fanhao]
+			},
+			searchRes: [],					// 检索结果
+			selectedFanhao: {},				// 当前选中的检索结果, 用于图片的展示
+
+			// 女优Form
+			tableDesign: {},				// 数据库设计
+			fanhao: {},						// 番号信息Form表单
+			sameStageNameAlert: false,		// 生成番号时, 已经存在相同番号的提示
+			nowEditMode: 0,					// 0 - 生成, 1- 更新;
+
+		},
+
+
+		methods: {
+			getTableDesign() {
+				axios.get('/fanhao/getTableDesign')
+					.then(res => {
+						console.log(1, res)
+						console.log(2, res.data)
+						console.log(3, res.data.code)
+						console.log(4, res.data.obj)
+						this.tableDesign = res.data.obj;
+					})
+					.catch(err => {
+						console.error(err);
+					})
+			},
+
+			fanhaoSearch(){
+				var _this = this;
+				var reqData = this.searchConditions;
+				axios({
+					method: 'post',
+					url: '/fanhao/fanhaoSearch',
+					data: reqData,
+				}).then((res) => {
+					console.log(res);
+					console.log(res.data);
+					console.log(res.data.obj);
+					this.searchRes = res.data.obj;
+				}).catch((err) => {
+					console.log("catch", err);
+				}).finally(() => {
+					_this.searchConditions.model = 'like';
+				})
+
+			},
+			viewFanhaoPic(){
+
+			},
+			updateFanhao(){
+
+			},
+			resetForm(){
+
+			},
+			// formItem样式动态调整
+			activeItemOneStyle(field) {
+				var height = '40px';
+				var width = '380px';
+				var margin = '5px';
+
+				if (["textarea"].includes(field.type)) {
+					height = 'height:auto';
+					width = '45%'
+				}
+				if (["jqRoleType", "jqStoryType"].includes(field.columnName)) {
+					width = '770px';
+				}
+
+				return { height, width, margin }
+
+			},
+
+			gnrtFanhao(){
+				var _this = this;
+				var reqData = { fanhao: this.fanhao }
+				axios.post('/fanhao/gnrtFanhao', reqData)
+					.then(function (res) {
+						console.log(res);
+						var resData = res.data;
+						console.log(resData);
+						if (resData.code == 200) {
+							_this.sameStageNameAlert = false;
+							_this.nowEditMode = 1;
+							_this.actress = resData.obj;
+
+						} else if (resData.code == '501') {
+							_this.sameStageNameAlert = true;
+							_this.searchConditions.name = _this.actress.nameStage;
+							_this.searchConditions.model = 'match';
+							_this.nameSearch();
+						} else {
+							_this.$alert(resData.msg, '生成失败', {
+								confirmButtonText: '确定'
+							});
+						}
+					})
+					.catch(function (err) {
+						alert(err);
+					})
+			},
+
+			// 不是这个番号, 从列表中移除
+			notThis(index, row) {
+				this.searchRes.splice(index, 1);
+			},
+
+			// 是这个番号, 填充到表单中
+			isThis(index, row) {
+				this.fanhao = row;
+				this.nowEditMode = 1;
+			},
+
+		},
+
+		created() {
+		},
+
+		mounted() {
+			this.getTableDesign();
+		},
+
+
+
+
+
+	})
+</script>
+
+</html>

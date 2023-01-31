@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="./js/vue.js"></script>
+    <script src="./js/axios.js"></script>
+</head> 
+<body>
+    <div id="app1" class="app1">
+        <div>消息:{{ message }}</div>
+        <div>姓名:{{ name }}</div>
+        <div>年龄:{{ age }}</div>
+        <div>身高:{{ otherInfo.sg }}</div>
+        <div>{{ ah[0] }}</div>
+        <div>
+            爱好:
+            <span v-for="(i, index) of ah" :key="index">{{(index+1) + '.' + i}}</span>
+        </div>
+
+        <div v-if="show">隐藏内容</div>
+        <div>{{test()}}</div>
+    </div>
+
+
+
+
+    <script>
+        // vue.js 提供了 Vue()这个构造函数,js中 new + 构造函数,就可以开始创建对象了
+        var app = new Vue(); // 这是一个vue通过构造函数创建的实例对象
+
+
+        var app1 = new Vue({ // 这也是通过vue构造函数创建的实例对象
+            el: '.app1', // 通过el属性指定,当前的vue-App,所控制和接管的body标签的的区域
+            data: { // vue开发规范,在data中定义的任何变量都可通过{{}}将变量直接显示在vue-app控制的标签范围内的任意位置
+                message: 'Hello Vue!',
+                name: 'CHEN',
+                age: 18,
+                ah: ['篮球', '足球'],
+                otherInfo: {
+                    sg: 180,
+                    tj: 10
+                },
+                show: false,
+            },
+            
+            methods:{ // 在methods中定义的任何方法函数,都是可以通过{{}}在vue-app控制的区域内任意使用的
+                test(){
+                    return 'test123'
+                },
+                
+
+                // 定义一个请求方法
+                httpRequest(){
+                    axios({
+                        method:'get',
+                        url:'http://localhost:9090/producer/test'
+                    }).then(function(response) {
+                        console.log(response.data);
+                    });
+                }
+            },
+
+            created () {
+              console.log('created');  
+            },
+
+            mounted () { // 生命周期函数,就是vue-app在生成的过程中,会被按照顺序触发执行的方法函数
+                console.log('mounted', this.message);
+                this.httpRequest();
+            }
+        })
+
+
+        // 1.{{}} -> data中数据在页面中的渲染
+        // 2.v-for -> 用来循环生成标签,可指定data中的被遍历目标, 固定格式()(item, index) of targetObject :key="index"
+    </script>
+</body>
+</html>

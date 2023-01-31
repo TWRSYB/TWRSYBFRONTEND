@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/js/jquery-3.6.3.js"></script>
+    <title>Document</title>
+</head>
+<body>
+    <div class="layui-form-item">
+        <label class="layui-form-label">专题图片</label>
+        <div class="layui-input-inline">
+            <div class="layui-upload-list">
+                <img class="layui-upload-img" name="titleBase64Img" id="base64Img" src="" style="display: none" width="300px" height="100px;">
+            </div>
+            <input type="file" id="image" lay-verify="required" onchange="toBase64()" accept="image/jpeg,image/png,image/jpg" class="layui-upload-button">
+        </div>
+    </div>
+</body>
+<script>
+    function toBase64(){
+        var file = document.querySelector('input[type=file]').files[0];
+        var reader = new FileReader();
+        reader.onloadend = function () {
+            $("#base64Img").attr("style","display:inline-block");
+            $("#base64Img").attr("src",reader.result);
+            console.log(reader.result);
+        }
+        if (file) {
+            reader.readAsDataURL(file);
+        }
+    }
+</script>
+</html>

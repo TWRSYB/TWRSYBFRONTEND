@@ -1,0 +1,267 @@
+.flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.flex-center>.item {
+    /* flex: 1; */
+    width: 150px;
+    border: 1px solid #ddd;
+}
+
+/* index */
+.series>.index {
+    width: 40px;
+    border: 1px solid #ddd;
+}
+
+.title>.index {
+    width: 40px;
+    border: 1px solid #ddd;
+}
+
+/* ID */
+.series>.id {
+    width: 60px;
+    border: 1px solid #ddd;
+}
+
+.title>.id {
+    width: 60px;
+    border: 1px solid #ddd;
+}
+
+/* status */
+.series>.status {
+    width: 60px;
+    border: 1px solid #ddd;
+}
+
+.title>.status {
+    width: 60px;
+    border: 1px solid #ddd;
+}
+
+.text-one-line {
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* table */
+.table {
+    border: 1px solid #ddd;
+}
+
+.tb_index {
+    text-align: center;
+    width: 60px;
+    border: 1px solid #ddd;
+}
+
+.tb_status {
+    text-align: center;
+    width: 80px;
+    border: 1px solid #ddd;
+}
+
+.tb_id {
+    text-align: center;
+    width: 80px;
+    border: 1px solid #ddd;
+}
+
+.tb_item {
+    text-align: center;
+    width: 150px;
+    border: 1px solid #ddd;
+}
+
+.modelBox {
+    border: 1px solid #ddd;
+    margin: 2px;
+    padding: 2px;
+}
+
+
+/* 查看选项区域 */
+.itemArea {
+    width: 98%;
+    padding: 5px;
+    border: 1px solid #a1a1a1;
+    margin: 5px;
+    border-radius: 5px;
+}
+
+.itemArea .itemTypeOne {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    border-bottom: 1px solid #efefef;
+    padding: 6px;
+}
+
+.itemArea .itemTypeName {
+    width: 150px;
+}
+
+.itemArea .item {
+    min-width: 100px;
+}
+
+/* 表格区域 */
+.tableArea {
+    width: 98%;
+    padding: 5px;
+    border: 1px solid #a1a1a1;
+    margin: 5px;
+    border-radius: 5px;
+}
+
+
+/* .inputArea {
+    width: 98%;
+    padding: 5px;
+    border: 1px solid #a1a1a1;
+    margin: 5px;
+    border-radius: 5px;
+}
+
+.inputArea .form {
+    width: 100%;
+}
+
+.inputArea .btnArea {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.inputArea .btnArea button {
+    margin: 8px 100px;
+}
+
+.inputArea .infoTypeOne {
+    display: flex;
+    align-items: center;
+    border: 1px solid #efefef;
+    padding: 1% 2%;
+    border-radius: 5px;
+    width: 95%;
+    margin: 2px;
+}
+
+.inputArea .infoTypeOne .infoCheck {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    width: 100%;
+}
+
+
+.inputArea .infoTypeOne .infoCheck .itemOne .input {
+    width: 85%;
+}
+
+.inputArea .infoTypeOne .infoCheck .itemOne img {
+    height: 30px;
+}
+
+.inputArea .infoTypeOne .infoCheck .itemOne .el-textarea {
+    width: 90%;
+}
+
+.inputArea .infoTypeOne .infoCheck .itemOne .el-form-item__label {
+    display: flex;
+    line-height: 18px;
+    height: 100%;
+    align-items: center;
+    text-align: left;
+}
+
+.inputArea .infoTypeOne .infoType {
+    min-width: 75px;
+} */
+
+
+
+.searchArea {
+    width: 98%;
+    padding: 5px;
+    border: 1px solid #a1a1a1;
+    margin: 5px;
+    border-radius: 5px;
+}
+
+.inputArea {
+    width: 98%;
+    padding: 5px;
+    border: 1px solid #a1a1a1;
+    margin: 5px;
+    border-radius: 5px;
+}
+
+.inputArea .infoTypeOne {
+    display: flex;
+    align-items: center;
+    border: 1px solid #efefef;
+    padding: 1% 1%;
+    border-radius: 5px;
+    width: 95%;
+    margin: 2px;
+}
+
+.inputArea .infoTypeOne .infoType {
+    min-width: 80px;
+}
+
+.inputArea .infoTypeOne .infoCheck {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    width: 100%;
+    border-left: 1px solid #eeeeee;
+}
+
+.inputArea .infoTypeOne .infoCheck img {
+    height: 40px;
+}
+
+.inputArea .btnArea {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.inputArea .btnArea button {
+    margin: 8px 100px;
+}
+
+
+.avatar-uploader .el-upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.avatar-uploader .el-upload:hover {
+    border-color: #409EFF;
+}
+
+.avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    height: 50px;
+    min-width: 50px;
+    line-height: 50px;
+    text-align: center;
+}
+
+.avatar {
+    height: 80px;
+    display: block;
+}
