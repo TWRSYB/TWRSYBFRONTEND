@@ -2,306 +2,345 @@
 <html>
 
 <head>
-	<title>添加女优</title>
-	<meta charset="UTF-8">
-	<link rel="stylesheet" href="../../element-ui-2.13.0/lib/theme-chalk/index.css" />
-	<link rel="stylesheet" href="../../css/main.css" />
-	<script src="../../js/vue.js"></script>
-	<script src="../../js/axios.js"></script>
-	<script type="text/javascript" src="../../element-ui-2.13.0/lib/index.js"></script>
-	<link rel="stylesheet" href="../../css/index.css">
+    <title>添加女优</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../../element-ui-2.13.0/lib/theme-chalk/index.css" />
+    <link rel="stylesheet" href="../../css/main.css" />
+    <script src="../../js/vue.js"></script>
+    <script src="../../js/axios.js"></script>
+    <script type="text/javascript" src="../../element-ui-2.13.0/lib/index.js"></script>
+    <link rel="stylesheet" href="../../css/index.css">
 
 </head>
 
 <body class="addActress">
-	<div id="app">
-		<!-- 检索区域 -->
-		<div class="searchArea">
-			<el-form ref="searchConditions " :model="searchConditions " label-width="80px" @submit.native.prevent>
-				<el-form-item class="rowOne" label="检索女优">
-					<el-input class="input" v-model="searchConditions .name" placeholder="请输入女优名" style="width: 400px;"
-						@keyup.enter.native="nameSearch()">
-					</el-input>
-					<el-button type="primary" @click="nameSearch">查询</el-button>
-				</el-form-item>
-			</el-form>
-			<template>
-				<el-table :data="searchRes.actressList" height="250" border style="width: 100%"
-					@row-click="viewActressPic">
-					<el-table-column prop="keyActressNo" label="女优编号" width="180"> </el-table-column>
-					<el-table-column prop="nameStage" label="艺名" width="180"> </el-table-column>
-					<el-table-column prop="nameJpTrue" label="日本真名"> </el-table-column>
-					<el-table-column prop="nameCn" label="中文名"> </el-table-column>
-					<el-table-column prop="nameEn" label="英文名"> </el-table-column>
-					<el-table-column prop="nameOther" label="别名"> </el-table-column>
-					<el-table-column label="确认">
-						<template slot-scope="scope">
-							<el-button size="mini" @click="isHer(scope.$index, scope.row)">是她</el-button>
-							<el-button size="mini" @click.stop="notHer(scope.$index, scope.row)">不是她</el-button>
-						</template>
-					</el-table-column>
-				</el-table>
-			</template>
-			<div style="display: flex;">
-				<div class="demo-image__preview" v-for="item in selectedNameLikeActress.headPicList"
-					style="margin: 5px; border: 1px solid #efefef;padding: 2px;">
-					<el-image style="height: 115px" :src="item" :preview-src-list="selectedNameLikeActress.headPicList">
-					</el-image>
-				</div>
-			</div>
-		</div>
-		<!-- Form表单区域 -->
-		<div class="inputArea">
-			<el-form ref="actress" :model="actress" label-width="80px" class="form">
-				<div class="infoTypeOne" v-for="fieldPackage in tableDesign.fieldPackages">
-					<div class="infoType">{{fieldPackage.typeName}}:</div>
-					<div class="infoCheck">
-						<template v-for="field in fieldPackage.fields">
+    <div id="app">
+        <!-- 检索区域 -->
+        <div class="searchArea">
+            <el-form ref="searchConditions " :model="searchConditions " label-width="80px" @submit.native.prevent>
+                <el-form-item class="rowOne" label="检索女优">
+                    <el-input class="input" v-model="searchConditions .name" placeholder="请输入女优名" style="width: 400px;"
+                        @keyup.enter.native="nameSearch()">
+                    </el-input>
+                    <el-button type="primary" @click="nameSearch">查询</el-button>
+                </el-form-item>
+            </el-form>
+            <template>
+                <el-table :data="searchRes.actressList" height="250" border style="width: 100%"
+                    @row-click="viewActressPic">
+                    <el-table-column prop="keyActressNo" label="女优编号" width="180"> </el-table-column>
+                    <el-table-column prop="nameStage" label="艺名" width="180"> </el-table-column>
+                    <el-table-column prop="nameJpTrue" label="日本真名"> </el-table-column>
+                    <el-table-column prop="nameCn" label="中文名"> </el-table-column>
+                    <el-table-column prop="nameEn" label="英文名"> </el-table-column>
+                    <el-table-column prop="nameOther" label="别名"> </el-table-column>
+                    <el-table-column label="确认">
+                        <template slot-scope="scope">
+                            <el-button size="mini" @click="isHer(scope.$index, scope.row)">是她</el-button>
+                            <el-button size="mini" @click.stop="notHer(scope.$index, scope.row)">不是她</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </template>
+            <div style="display: flex;">
+                <div class="demo-image__preview" v-for="item in selectedNameLikeActress.headPicList"
+                    style="margin: 5px; border: 1px solid #efefef;padding: 2px;">
+                    <el-image style="height: 115px" :src="item" :preview-src-list="selectedNameLikeActress.headPicList">
+                    </el-image>
+                </div>
+            </div>
+        </div>
+        <!-- Form表单区域 -->
+        <div class="inputArea">
+            <el-form ref="actress" :model="actress" label-width="80px" class="form">
+                <div class="infoTypeOne" v-for="fieldPackage in tableDesign.fieldPackages">
+                    <div class="infoType">{{fieldPackage.typeName}}:</div>
+                    <div class="infoCheck">
+                        <template v-for="field in fieldPackage.fields">
+
+                            <!-- 特殊-肤色, 户型颜色 -->
+                            <el-form-item class="itemOne" :label="field.columnComment" v-if="field.columnName == 'xmSkinColor' || field.columnName == 'hxColor'"
+                                :style="activeItemOneStyle(field)">
+                                <el-radio-group v-model="actress[field.columnName]">
+                                    <el-radio-button v-for="(value, key, index) in field.lvs" :label="key" :key="key" class="dark">
+                                        <div :style="skinColorStyle(index)">{{value}}</div>
+                                    </el-radio-button>
+                                </el-radio-group>
+                            </el-form-item>
+
+                            <!-- 通用-文本输入框 -->
+                            <el-form-item class="itemOne" :label="field.columnComment" v-else-if="field.type == 'text'"
+                                :style="activeItemOneStyle(field)">
+                                <el-input class="input" v-model="actress[field.columnName]"
+                                    :placeholder="field.columnComment" :disabled="field.columnName.startsWith('key')">
+                                </el-input>
+                            </el-form-item>
+
+                            <!-- 通用-文本域 -->
+                            <el-form-item class="itemOne" :label="field.columnComment" v-else-if="field.type == 'textarea'"
+                                :style="activeItemOneStyle(field)">
+                                <el-input type="textarea" :rows="2" v-model="actress[field.columnName]"
+                                    :placeholder="field.columnComment">
+                                </el-input>
+                            </el-form-item>
+
+                            <!-- 通用-分级 -->
+                            <el-form-item class="itemOne" :label="field.columnComment" v-else-if="field.type == 'lv'"
+                                :style="activeItemOneStyle(field)">
+                                <el-radio-group v-model="actress[field.columnName]">
+                                    <el-radio-button v-for="(value, key, index) in field.lvs" :label="key" :key="key">
+                                        {{value}}
+                                    </el-radio-button>
+                                </el-radio-group>
+                            </el-form-item>
+
+                            <!-- 通用-类型 -->
+                            <el-form-item class="itemOne" :label="field.columnComment" v-else-if="field.type == 'type'"
+                                :style="activeItemOneStyle(field)">
+                                <el-radio-group v-model="actress[field.columnName]">
+                                    <el-radio-button v-for="(item, index) in field.types" :label="item" :key="item">
+                                    </el-radio-button>
+                                </el-radio-group>
+                            </el-form-item>
+
+                            <!-- 通用-年月日 -->
+                            <el-form-item class="itemOne" :label="field.columnComment" v-else-if="field.type == 'ymd'"
+                                :style="activeItemOneStyle(field)">
+                                <el-date-picker format="yyyyMMdd" value-format="yyyyMMdd"
+                                    v-model="actress[field.columnName]" :placeholder="field.columnComment">
+                                </el-date-picker>
+                            </el-form-item>
+
+                        </template>
+                        <el-button type="primary" @click="gnrtActressNo"
+                            v-if="fieldPackage.type == 'main' && nowEditMode == 0">生成女优编号</el-button>
+
+                        <div v-if="fieldPackage.type == 'main' && sameStageNameAlert" style="color: red;">已经存在相同艺名的女优,
+                            是否继续生成?</div>
 
 
-							<el-form-item class="itemOne" :label="field.columnComment" v-if="field.type == 'text'"
-								:style="activeItemOneStyle(field)">
-								<el-input class="input" v-model="actress[field.columnName]"
-									:placeholder="field.columnComment" :disabled="field.columnName.startsWith('key')">
-								</el-input>
-							</el-form-item>
 
-							<el-form-item class="itemOne" :label="field.columnComment" v-if="field.type == 'textarea'"
-								:style="activeItemOneStyle(field)">
-								<el-input type="textarea" :rows="2" v-model="actress[field.columnName]"
-									:placeholder="field.columnComment">
-								</el-input>
-							</el-form-item>
+                    </div>
+                </div>
+                <div class="btnArea">
+                    <el-button type="primary" @click="updateActress" :disabled="nowEditMode == 0">修改信息</el-button>
+                    <el-button type="" @click="resetForm">重置</el-button>
+                </div>
 
-							<el-form-item class="itemOne" :label="field.columnComment" v-if="field.type == 'lv'"
-								:style="activeItemOneStyle(field)">
-								<el-radio-group v-model="actress[field.columnName]">
-									<el-radio-button v-for="(value, key, index) in field.lvs" :label="key" :key="key">
-										{{value}}
-									</el-radio-button>
-								</el-radio-group>
-							</el-form-item>
-
-							<el-form-item class="itemOne" :label="field.columnComment" v-if="field.type == 'type'"
-								:style="activeItemOneStyle(field)">
-								<el-radio-group v-model="actress[field.columnName]">
-									<el-radio-button v-for="(item, index) in field.types" :label="item" :key="item">
-									</el-radio-button>
-								</el-radio-group>
-							</el-form-item>
-
-							<el-form-item class="itemOne" :label="field.columnComment" v-if="field.type == 'ymd'"
-								:style="activeItemOneStyle(field)">
-								<el-date-picker format="yyyyMMdd" value-format="yyyyMMdd"
-									v-model="actress[field.columnName]" :placeholder="field.columnComment">
-								</el-date-picker>
-							</el-form-item>
-
-						</template>
-						<el-button type="primary" @click="gnrtActressNo"
-							v-if="fieldPackage.type == 'main' && nowEditMode == 0">生成女优编号</el-button>
-
-						<div v-if="fieldPackage.type == 'main' && sameStageNameAlert" style="color: red;">已经存在相同艺名的女优,
-							是否继续生成?</div>
-
-
-
-					</div>
-				</div>
-				<div class="btnArea">
-					<el-button type="primary" @click="updateActress" :disabled="nowEditMode == 0">修改信息</el-button>
-					<el-button type="" @click="resetForm">重置</el-button>
-				</div>
-
-			</el-form>
-		</div>
-		{{actress}}
-		<hr>
-		{{tableDesign}}
-		<hr>
-		{{selectedNameLikeActress}}
-		<hr>
-		{{searchRes}}
-		<hr>
-	</div>
+            </el-form>
+        </div>
+        {{actress}}
+        <hr>
+        {{tableDesign}}
+        <hr>
+        {{selectedNameLikeActress}}
+        <hr>
+        {{searchRes}}
+        <hr>
+    </div>
 </body>
 <script>
-	axios.defaults.baseURL = 'http://localhost:9090';
-	Vue.config.productionTip = false;
-	//axios.defaults.withCredentials = true
-	new Vue({
-		el: "#app",
-		data: {
+    axios.defaults.baseURL = 'http://localhost:9090';
+    Vue.config.productionTip = false;
+    //axios.defaults.withCredentials = true
+    new Vue({
+        el: "#app",
+        data: {
 
 
-			// 检索女优相关
-			searchConditions: {				// 检索条件
-				name: "",					// 名字
-				model: "like"				// 检索模式 [like, match]
-			},
-			searchRes: {},					// 检索结果
-			selectedNameLikeActress: {},	// 当前选中的检索结果, 用于图片的展示
+            // 检索女优相关
+            searchConditions: {				// 检索条件
+                name: "",					// 名字
+                model: "like"				// 检索模式 [like, match]
+            },
+            searchRes: {},					// 检索结果
+            selectedNameLikeActress: {},	// 当前选中的检索结果, 用于图片的展示
 
-			// 女优Form
-			tableDesign: {},				// 数据库设计
-			actress: {},					// 女优信息Form表单
-			sameStageNameAlert: false,		// 生成女优时, 已经存在相同艺名女优的提示
-			nowEditMode: 0,					// 0 - 生成, 1- 更新;
-
-
-
-		},
-
-
-		methods: {
-
-
-			// 获取表结构
-			getTableDesign() {
-				axios.get('/actress/getTableDesign')
-					.then(res => {
-						console.log(1, res)
-						console.log(4, res.data.obj.fieldPackages)
-						this.tableDesign = res.data.obj;
-					})
-					.catch(err => {
-						console.error(err);
-					})
-			},
-
-			// 姓名检索
-			nameSearch() {
-				var _this = this;
-				var reqData = this.searchConditions;
-				axios({
-					method: 'post',
-					url: '/actress/nameSearch',
-					data: reqData,
-				}).then((res) => {
-					console.log(res);
-					console.log(res.data);
-					console.log(res.data.obj);
-					this.searchRes = res.data.obj;
-				}).catch((err) => {
-					console.log("catch", err);
-				}).finally(() => {
-					_this.searchConditions.model = 'like';
-				})
-			},
-
-			// 选中女优, 展示图片
-			viewActressPic(row, column, event) {
-				this.selectedNameLikeActress = Object.assign({}, row);
-				this.selectedNameLikeActress.headPicList = [];
-				for (let i = 0; i < row.headPicList.length; i++) {
-					const headPicName = row.headPicList[i];
-					this.selectedNameLikeActress.headPicList.push(`http://localhost:9090/${headPicName}`)
-				}
-			},
-
-
-			// formItem样式动态调整
-			activeItemOneStyle(field) {
-				var height = '40px';
-				var width = '380px';
-				var margin = '5px';
-
-				if (["textarea"].includes(field.type)) {
-					height = 'height:auto';
-					width = '45%'
-				}
-				if (["xmAppearanceIndex"].includes(field.columnName)) {
-					width = '770px';
-				}
-
-				return { height, width, margin }
-
-			},
-
-			// 生成女优编号
-			gnrtActressNo() {
-				var _this = this;
-				var reqData = { force: this.sameStageNameAlert, actress: this.actress }
-				axios.post('/actress/gnrtActressNo', reqData)
-					.then(function (res) {
-						console.log(res);
-						var resData = res.data;
-						console.log(resData);
-						if (resData.code == 200) {
-							_this.sameStageNameAlert = false;
-							_this.nowEditMode = 1;
-							_this.actress = resData.obj;
-
-						} else if (resData.code == '501') {
-							_this.sameStageNameAlert = true;
-							_this.searchConditions.name = _this.actress.nameStage;
-							_this.searchConditions.model = 'match';
-							_this.nameSearch();
-						} else {
-							_this.$alert(resData.msg, '生成失败', {
-								confirmButtonText: '确定'
-							});
-						}
-					})
-					.catch(function (err) {
-						alert(err);
-					})
-			},
-
-			// 不是这个女优, 从列表中移除
-			notHer(index, row) {
-				this.searchRes.actressList.splice(index, 1);
-			},
-
-			// 是这个女优, 填充到表单中
-			isHer(index, row) {
-				this.actress = row;
-				this.nowEditMode = 1;
-			},
-
-			// 更新女优
-			updateActress() {
-				var _this = this;
-				var reqData = { actress: this.actress };
-				axios.post('/actress/updateActress', reqData)
-					.then(function (res) {
-						console.log(res);
-						var resData = res.data;
-						console.log(resData);
-						if (resData.code == 200) {
-							_this.$message({
-								showClose: true,
-								message: resData.msg,
-								type: 'success'
-							});
-						} else {
-
-						}
-					})
-					.catch(function (err) {
-						alert(err);
-					})
-			},
-			// 重置表单
-			resetForm() {
-				this.actress = {};
-				this.sameStageNameAlert = false;
-				this.nowEditMode = 0
-			}
-		},
-
-		created() {
-		},
-
-		mounted() {
-			this.getTableDesign();
-		},
+            // 女优Form
+            tableDesign: {},				// 数据库设计
+            actress: {},					// 女优信息Form表单
+            sameStageNameAlert: false,		// 生成女优时, 已经存在相同艺名女优的提示
+            nowEditMode: 0,					// 0 - 生成, 1- 更新;
 
 
 
+        },
 
 
-	})
+        methods: {
+
+
+            // 获取表结构
+            getTableDesign() {
+                axios.get('/actress/getTableDesign')
+                    .then(res => {
+                        console.log(1, res)
+                        console.log(4, res.data.obj.fieldPackages)
+                        this.tableDesign = res.data.obj;
+                    })
+                    .catch(err => {
+                        console.error(err);
+                    })
+            },
+
+            // 姓名检索
+            nameSearch() {
+                var _this = this;
+                var reqData = this.searchConditions;
+                axios({
+                    method: 'post',
+                    url: '/actress/nameSearch',
+                    data: reqData,
+                }).then((res) => {
+                    console.log(res);
+                    console.log(res.data);
+                    console.log(res.data.obj);
+                    this.searchRes = res.data.obj;
+                }).catch((err) => {
+                    console.log("catch", err);
+                }).finally(() => {
+                    _this.searchConditions.model = 'like';
+                })
+            },
+
+            // 选中女优, 展示图片
+            viewActressPic(row, column, event) {
+                this.selectedNameLikeActress = Object.assign({}, row);
+                this.selectedNameLikeActress.headPicList = [];
+                for (let i = 0; i < row.headPicList.length; i++) {
+                    const headPicName = row.headPicList[i];
+                    this.selectedNameLikeActress.headPicList.push(`http://localhost:9090/${headPicName}`)
+                }
+            },
+
+
+            // formItem样式动态调整
+            activeItemOneStyle(field) {
+                var height = '40px';
+                var width = '380px';
+                var margin = '5px';
+
+                if (["textarea"].includes(field.type)) {
+                    height = 'height:auto';
+                    width = '45%'
+                } else if (["xmAppearanceIndex","zlXingzuo"].includes(field.columnName)) {
+                    width = '100%';
+                }
+
+                return { height, width, margin }
+
+            },
+
+            // style调整, 根据肤色等级调整选框颜色
+            skinColorStyle(index){
+                var backgroundColor = "rgb(200, 200, 200)"; 
+                var color = "#606266"
+                var padding = "5px";
+                var margin = "-4px -4px";
+                var borderRadius = "7px";
+                if (index==1) {             // 黑
+                    backgroundColor = "rgb(93, 80, 74)"
+                    color = "rgb(255, 255, 255)"
+                } else if (index == 2) {    // 黑棕
+                    backgroundColor = "rgb(123, 79, 66)"
+                    color = "rgb(255, 255, 255)"
+                } else if (index == 3) {    // 黄棕
+                    backgroundColor = "rgb(201, 122, 81)"
+                    color = "rgb(255, 255, 255)"
+                } else if (index == 4) {    // 黄
+                    backgroundColor = "rgb(238, 196, 158)"
+                    color = "#000000"
+                } else if (index == 5) {    // 黄白
+                    backgroundColor = "rgb(254, 236, 216)"
+                    color = "#000000"
+                } else if (index == 6) {    // 白
+                    backgroundColor = "rgb(238, 225, 225)"
+                    color = "#333333"
+                }
+                return {backgroundColor, color, margin, padding, borderRadius};
+            },
+
+            // 生成女优编号
+            gnrtActressNo() {
+                var _this = this;
+                var reqData = { force: this.sameStageNameAlert, actress: this.actress }
+                axios.post('/actress/gnrtActressNo', reqData)
+                    .then(function (res) {
+                        console.log(res);
+                        var resData = res.data;
+                        console.log(resData);
+                        if (resData.code == 200) {
+                            _this.sameStageNameAlert = false;
+                            _this.nowEditMode = 1;
+                            _this.actress = resData.obj;
+
+                        } else if (resData.code == '501') {
+                            _this.sameStageNameAlert = true;
+                            _this.searchConditions.name = _this.actress.nameStage;
+                            _this.searchConditions.model = 'match';
+                            _this.nameSearch();
+                        } else {
+                            _this.$alert(resData.msg, '生成失败', {
+                                confirmButtonText: '确定'
+                            });
+                        }
+                    })
+                    .catch(function (err) {
+                        alert(err);
+                    })
+            },
+
+            // 不是这个女优, 从列表中移除
+            notHer(index, row) {
+                this.searchRes.actressList.splice(index, 1);
+            },
+
+            // 是这个女优, 填充到表单中
+            isHer(index, row) {
+                this.actress = row;
+                this.nowEditMode = 1;
+            },
+
+            // 更新女优
+            updateActress() {
+                var _this = this;
+                var reqData = { actress: this.actress };
+                axios.post('/actress/updateActress', reqData)
+                    .then(function (res) {
+                        console.log(res);
+                        var resData = res.data;
+                        console.log(resData);
+                        if (resData.code == 200) {
+                            _this.actress = res.data.obj;
+                            _this.$message.success(res.data.msg);
+                        } else {
+                            _this.$message.error(res.data.msg);
+                        }
+                    })
+                    .catch(function (err) {
+                        alert(err);
+                    })
+            },
+            // 重置表单
+            resetForm() {
+                this.actress = {};
+                this.sameStageNameAlert = false;
+                this.nowEditMode = 0
+            }
+        },
+
+        created() {
+        },
+
+        mounted() {
+            this.getTableDesign();
+        },
+
+
+
+
+
+    })
 </script>
 
 </html>

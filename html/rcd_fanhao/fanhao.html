@@ -43,7 +43,7 @@
 							<el-form label-position="left" inline class="demo-table-expand">
 								<template v-for="fieldPackage in tableDesign.fieldPackages" :key="">
 									<el-form-item v-for="field in fieldPackage.fields" :label="field.columnComment" :key="field.columnName">
-										<span>{{ expandKeyGetValue(props.row, field.columnName) }}</span>
+										<span>{{ props.row[field.columnName] }}</span>
 									</el-form-item>
 								</template>
 							</el-form>
@@ -82,8 +82,10 @@
 		el: "#app",
 		data: {
 
-			tableDesign: {},
-			fanhaoList: [],
+			tableDesign: {},    // 表设计
+			fanhaoList: [],     // 番号列表
+
+            // 非数据库设计展示项
 			comItems: { "index": "序号", "option": "操作", "expand": "展开", "selection": "选择" },
 			comItemSelected: ["expand"],
 			comItemSelectAll: true,
@@ -93,14 +95,10 @@
 
 
 		methods: {
-
+            // 获取表设计
 			getTableDesign() {
 				axios.get('/fanhao/getTableDesign')
 					.then(res => {
-						console.log(1, res)
-						console.log(2, res.data)
-						console.log(3, res.data.code)
-						console.log(4, res.data.obj)
 						this.tableDesign = res.data.obj;
 					})
 					.catch(err => {
@@ -108,6 +106,7 @@
 					})
 			},
 
+            // 获取番号列表
 			queryFanhaoList() {
 				axios.get('/fanhao/queryFanhaoList')
 					.then(res => {
@@ -120,6 +119,7 @@
 					})
 			},
 			
+            // 宽度自适应
 			activeWidth(field) {
 				if (["ypFilmTitle"].includes(field)) {
 					return 300;
@@ -128,14 +128,6 @@
 				}
 			},
 
-			expandKeyGetValue(row, key) {
-				console.log(row, key);
-				for (let i in row) {
-					if (i == key) {
-						return row[i];
-					}
-				}
-			},
 		},
 
 		created() {

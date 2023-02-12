@@ -53,25 +53,38 @@
                                     <div class="infoCheck">
                                         <template v-for="field in fieldPackage.fields">
 
+                                            <!-- 下拉列表 -->
+                                            <el-form-item class="itemOne"  :label="field.columnComment" v-if="field.columnName == 'gdProducer'" :style="activeItemOneStyle(field)">
+                                                <el-select v-model="props.row[field.columnName]" filterable clearable placeholder="请选择">
+                                                    <el-option v-for="producer in producerList" :key="producer.csProducer" :label="producer.csProducer" :value="producer.csProducer">
+                                                        <span style="float: left">{{ producer.csProducer }}</span>
+                                                        <span style="float: right; color: #8492a6; font-size: 13px">{{ producer.nmCn }}</span>
+                                                    </el-option>
+                                                </el-select>
+                                            </el-form-item>
+
+                                            <!-- 文本输入框 -->
                                             <el-form-item class="itemOne" :label="field.columnComment"
-                                                v-if="field.type == 'text'" :style="activeItemOneStyle(field)">
+                                                v-else-if="field.type == 'text'" :style="activeItemOneStyle(field)">
                                                 <el-input class="input" v-model="props.row[field.columnName]"
                                                     :placeholder="field.columnComment"
-                                                    :disabled="field.columnName.startsWith('key')">
+                                                    :disabled="field.columnName=='xlSimple' && props.row.rcDataStatus != ''">
                                                 </el-input>
                                             </el-form-item>
 
+                                            <!-- 文本域 -->
                                             <el-form-item class="itemOne" :label="field.columnComment"
-                                                v-if="field.type == 'textarea'" :style="activeItemOneStyle(field)">
+                                                v-else-if="field.type == 'textarea'" :style="activeItemOneStyle(field)">
                                                 <el-input type="textarea" :rows="2"
                                                     v-model="props.row[field.columnName]"
                                                     :placeholder="field.columnComment">
                                                 </el-input>
                                             </el-form-item>
 
+                                            <!-- 级别 -->
                                             <el-form-item class="itemOne" :label="field.columnComment"
-                                                v-if="field.type == 'lv'" :style="activeItemOneStyle(field)">
-                                                <el-radio-group v-model="props.row[field.columnName]">
+                                                v-else-if="field.type == 'lv'" :style="activeItemOneStyle(field)">
+                                                <el-radio-group v-model="props.row[field.columnName]"     :disabled="field.columnName=='rcDataStatus' && props.row.rcDataStatus == ''">
                                                     <el-radio-button v-for="(value, key, index) in field.lvs"
                                                         :label="key" :key="key">
                                                         {{value}}
@@ -79,8 +92,9 @@
                                                 </el-radio-group>
                                             </el-form-item>
 
+                                            <!-- 类型 -->
                                             <el-form-item class="itemOne" :label="field.columnComment"
-                                                v-if="field.type == 'type'" :style="activeItemOneStyle(field)">
+                                                v-else-if="field.type == 'type'" :style="activeItemOneStyle(field)">
                                                 <el-radio-group v-model="props.row[field.columnName]">
                                                     <el-radio-button v-for="(item, index) in field.types" :label="item"
                                                         :key="item">
@@ -88,16 +102,18 @@
                                                 </el-radio-group>
                                             </el-form-item>
 
+                                            <!-- 年月日 -->
                                             <el-form-item class="itemOne" :label="field.columnComment"
-                                                v-if="field.type == 'ymd'" :style="activeItemOneStyle(field)">
+                                                v-else-if="field.type == 'ymd'" :style="activeItemOneStyle(field)">
                                                 <el-date-picker format="yyyyMMdd" value-format="yyyyMMdd"
                                                     v-model="props.row[field.columnName]"
                                                     :placeholder="field.columnComment">
                                                 </el-date-picker>
                                             </el-form-item>
 
+                                            <!-- 更换Logo 图标 -->
                                             <el-form-item class="itemOne" :label="field.columnComment"
-                                                v-if="field.type == 'img'" :style="activeItemOneStyle(field)">
+                                                v-else-if="field.type == 'img'" :style="activeItemOneStyle(field)">
                                                 <div class="" style="display: flex;">
                                                     <img :src='props.row.imgLogo' style="margin-right: 15px;">
                                                     <input id='aaa' multiple="multiple" type="file" ref="sysUploadFile"
@@ -106,22 +122,12 @@
                                             </el-form-item>
 
                                         </template>
-                                        <el-button type="primary" @click="gnrtProducer"
-                                            v-if="fieldPackage.type == 'cs' && !props.row.rcDataStatus">生成厂商</el-button>
                                     </div>
                                 </div>
-                                <el-form-item class="itemOne" label="厂商">
-                                    <el-select v-model="value" filterable clearable placeholder="请选择">
-                                        <el-option v-for="producer in producerList" :key="producer.csProducer" :label="producer.nmCn" :value="producer.csProducer">
-                                            <span style="float: left">{{ producer.csProducer }}</span>
-                                            <span style="float: right; color: #8492a6; font-size: 13px">{{ producer.nmCn }}</span>
-                                        </el-option>
-                                    </el-select>
-                                </el-form-item>
+
                                 <div class="btnArea">
-                                    <el-button type="primary" @click="updateSeries(props.row)"
-                                        :disabled="!props.row.rcDataStatus">更新
-                                    </el-button>
+                                    <el-button type="primary" @click="updateSeries(props.row)" :disabled="!props.row.rcDataStatus">更新</el-button>
+                                    <el-button type="primary" @click="gnrtSeries(props.row)" v-if="!props.row.rcDataStatus">生成系列</el-button>
                                 </div>
 
                             </el-form>
@@ -141,6 +147,9 @@
                     </el-table-column>
                 </template>
             </el-table>
+            <div class="btnArea">
+                <el-button type="primary" @click="newSeries">新增系列</el-button>
+            </div>
         </div>
         seriesList={{seriesList}} <br><br>
         tableDesign={{tableDesign}}
@@ -164,23 +173,6 @@
             comItems: { "index": "序号", "expand": "展开" },
             comItemSelected: ["index", "expand"],
 
-            options: [{
-                value: '选项1',
-                label: '黄金糕'
-            }, {
-                value: '选项2',
-                label: '双皮奶'
-            }, {
-                value: '选项3',
-                label: '蚵仔煎'
-            }, {
-                value: '选项4',
-                label: '龙须面'
-            }, {
-                value: '选项5',
-                label: '北京烤鸭'
-            }],
-            value: ''
 
 
         },
@@ -248,9 +240,40 @@
             },
 
 
-            // 生成厂商
-            gnrtProducer() {
+            // 新增系列
+            newSeries() {
+                this.seriesList.push(
+                    {   xlSimple: "", xlFull: "", 
+                        nmJp: "", nmCn: "", 
+                        wzGw: "", 
+                        fhPattern: "", fhRuler: "", 
+                        gdProducer: "", gdMosaic: "", gdSubSeries: "", 
+                        imgLogo: null, 
+                        msResume: "", msDetail: "", 
+                        rcRecordTime: "", rcRecorder: "", rcLastModifiedTime: "", rcLastModifier: "", rcDataStatus: ""
+                    }
+                )
+            },
 
+            // 生成系列
+            gnrtSeries(row){
+                console.log(row);
+                var url = "/series/gnrtSeries";
+                var params = row;
+                // row.rcDataStatus = '1';
+                // console.log(row);
+                axios.post(url, params)
+                    .then(res => {
+                        if (res.data.code == 200) {
+                            row.rcDataStatus = res.data.obj.rcDataStatus;
+                            this.$message.success(res.data.msg);
+                        } else {
+                            this.$message.error(res.data.msg);
+                        }
+
+                    }).catch(err => {
+                        this.$message.error(err);
+                    })
             },
 
             // 更新厂商
@@ -260,12 +283,14 @@
                 var params = row;
                 axios.post(url, params)
                     .then(res => {
-                        console.log(res);
+                        if (res.data.code == 200) {
+                            this.$message.success(res.data.msg);
+                        } else {
+                            this.$message.error(res.data.msg);
+                        }
+                    }).catch(err => {
+                        this.$message.error(err);
                     })
-                    .catch(err => {
-                        console.error(err);
-                    })
-
             },
 
 
